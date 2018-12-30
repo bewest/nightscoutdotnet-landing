@@ -38,6 +38,11 @@ app.disable('x-powered-by');
 app.set('port', config.port);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
+var appname = config.appname || "Nightscout";
+
+var sessionStore = new mongoStore({ url: config.mongodb.uri });
+var generateId = null;
+// sessionStore = new RedisSessionsStore({namespace: rsapp, appname: appname});
 
 //middleware
 app.use(require('morgan')('dev'));
@@ -46,11 +51,26 @@ app.use(require('method-override')());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser(config.cryptoKey));
+if (config.redis.use_redis_sessions) {
+  var redis_config = {
+      namespace: rsapp
+    , appname: appname
+    , client: {
+      url: config.redis.url,
+      host: config.redis.host,
+      port: config.redis.port
+
+    }
+  };
+  sessionStore = new RedisSessionsStore(redis_config);
+  generateId = RedisSessionsStore.generateId;
+}
 app.use(session({
   resave: true,
   saveUninitialized: true,
   secret: config.cryptoKey,
-  store: new mongoStore({ url: config.mongodb.uri })
+  genid: generateId,
+  store: sessionStore
 }));
 app.use(passport.initialize());
 app.use(passport.session());

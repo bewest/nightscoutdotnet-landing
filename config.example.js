@@ -26,6 +26,14 @@ exports.smtp = {
     ssl: true
   }
 };
+
+exports.redis = {
+  use_redis_sessions : process.env.USE_REDIS_SESSIONS ? true: false,
+  url: process.env.REDIS_URL || '',
+  host: process.env.REDIS_HOST || null,
+  port: process.env.REDIS_PORT || null,
+};
+
 exports.oauth = {
   twitter: {
     key: process.env.TWITTER_OAUTH_KEY || '',

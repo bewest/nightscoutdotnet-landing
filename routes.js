@@ -41,9 +41,6 @@ exports = module.exports = function(app, passport) {
   // auth/drywall should be used.
   function maybeProxy (req, res, next) {
     // Debug.
-    if (req.isAuthenticated( )) {
-      console.log('isAuthenticated');
-    }
     // If user is not authorized/unknown, use local logic to force signin.
     if (!req.user || !req.isAuthenticated( )) {
       console.log('sending to next');
@@ -54,12 +51,15 @@ exports = module.exports = function(app, passport) {
     return myProxy(req, res, next);
 
   }
+  console.log('base', app.config);
 
   // Neither of these variation seems to make much difference.
 
+  var oauth_base = app.config.oauth_base;
   // Theory is to allow local logic and views to take over for admin UI
   // controls, otherwise proxy to single page app with it's own data store.
-  app.get('/', maybeProxy, require('./views/index').init);
+  // app.get('/', maybeProxy, require('./views/index').init);
+  app.get('/', require('./views/index').init);
 
   // app.get('/', require('./views/index').init);
   app.get('/about/', require('./views/about/index').init);
@@ -72,15 +72,15 @@ exports = module.exports = function(app, passport) {
 
   //social sign up
   app.post('/signup/social/', require('./views/signup/index').signupSocial);
-  app.get('/signup/twitter/', passport.authenticate('twitter', { callbackURL: '/signup/twitter/callback/' }));
+  app.get('/signup/twitter/', passport.authenticate('twitter', { callbackURL: oauth_base + '/signup/twitter/callback/' }));
   app.get('/signup/twitter/callback/', require('./views/signup/index').signupTwitter);
-  app.get('/signup/github/', passport.authenticate('github', { callbackURL: '/signup/github/callback/', scope: ['user:email'] }));
-  app.get('/signup/github/callback/', require('./views/signup/index').signupGitHub);
-  app.get('/signup/facebook/', passport.authenticate('facebook', { callbackURL: '/signup/facebook/callback/', scope: ['email'] }));
+  app.get('/signup/github/', passport.authenticate('github', { callbackURL: oauth_base + '/oauth/signup/github/callback/', scope: ['user:email'] }));
+  app.get('/oauth/signup/github/callback/', require('./views/signup/index').signupGitHub);
+  app.get('/signup/facebook/', passport.authenticate('facebook', { callbackURL: oauth_base + '/signup/facebook/callback/', scope: ['email'] }));
   app.get('/signup/facebook/callback/', require('./views/signup/index').signupFacebook);
-  app.get('/signup/google/', passport.authenticate('google', { callbackURL: '/signup/google/callback/', scope: ['profile email'] }));
+  app.get('/signup/google/', passport.authenticate('google', { callbackURL: oauth_base + '/signup/google/callback/', scope: ['profile email'] }));
   app.get('/signup/google/callback/', require('./views/signup/index').signupGoogle);
-  app.get('/signup/tumblr/', passport.authenticate('tumblr', { callbackURL: '/signup/tumblr/callback/' }));
+  app.get('/signup/tumblr/', passport.authenticate('tumblr', { callbackURL: oauth_base + '/signup/tumblr/callback/' }));
   app.get('/signup/tumblr/callback/', require('./views/signup/index').signupTumblr);
 
   //login/out
@@ -94,15 +94,15 @@ exports = module.exports = function(app, passport) {
   app.get('/logout/', require('./views/logout/index').init);
 
   //social login
-  app.get('/login/twitter/', passport.authenticate('twitter', { callbackURL: '/login/twitter/callback/' }));
+  app.get('/login/twitter/', passport.authenticate('twitter', { callbackURL: oauth_base + '/login/twitter/callback/' }));
   app.get('/login/twitter/callback/', require('./views/login/index').loginTwitter);
-  app.get('/login/github/', passport.authenticate('github', { callbackURL: '/login/github/callback/' }));
-  app.get('/login/github/callback/', require('./views/login/index').loginGitHub);
-  app.get('/login/facebook/', passport.authenticate('facebook', { callbackURL: '/login/facebook/callback/' }));
+  app.get('/login/github/', passport.authenticate('github', { callbackURL: oauth_base + '/oauth/login/github/callback/' }));
+  app.get('/oauth/login/github/callback/', require('./views/login/index').loginGitHub);
+  app.get('/login/facebook/', passport.authenticate('facebook', { callbackURL: oauth_base + '/login/facebook/callback/' }));
   app.get('/login/facebook/callback/', require('./views/login/index').loginFacebook);
-  app.get('/login/google/', passport.authenticate('google', { callbackURL: '/login/google/callback/', scope: ['profile email'] }));
+  app.get('/login/google/', passport.authenticate('google', { callbackURL: oauth_base + '/login/google/callback/', scope: ['profile email'] }));
   app.get('/login/google/callback/', require('./views/login/index').loginGoogle);
-  app.get('/login/tumblr/', passport.authenticate('tumblr', { callbackURL: '/login/tumblr/callback/', scope: ['profile email'] }));
+  app.get('/login/tumblr/', passport.authenticate('tumblr', { callbackURL: oauth_base + '/login/tumblr/callback/', scope: ['profile email'] }));
   app.get('/login/tumblr/callback/', require('./views/login/index').loginTumblr);
 
   //admin
@@ -185,6 +185,46 @@ exports = module.exports = function(app, passport) {
   app.put('/account/settings/identity/', require('./views/account/settings/index').identity);
   app.put('/account/settings/password/', require('./views/account/settings/index').password);
 
+  // billing
+  var billing = require('./views/account/billing/index');
+  app.get('/account/billing/'
+    , billing.jsonIfXHR
+    , billing.set_bases
+    , billing.fetch_payment_token
+    , billing.renderPhase
+  ) ;
+  app.get('/account/billing/plans'
+    , billing.set_bases
+    , billing.jsonIfXHR, billing.fetch_plans
+    , billing.fmt_plans
+  ) ;
+  app.post('/account/billing/paid'
+    , billing.jsonIfXHR
+    , billing.set_bases
+    , billing.fetch_plans
+    , billing.suggest_subscription
+    , billing.create_subscription
+    , billing.fmt_subscription
+  ) ;
+
+
+  // account > sites
+  var sites = require('./views/account/sites/index');
+  app.get('/account/sites/', sites.jsonIfXHR, sites.init);
+  app.post('/account/sites/', sites.create);
+  app.delete('/account/sites/:name', sites.remove);
+  app.get('/account/sites/list.json', sites.list);
+  app.get('/account/sites/:name', sites.examine);
+  app.get('/account/sites/:name/views', sites.jsonIfXHR, sites.findSite, sites.listView);
+  app.get('/account/sites/:name/runtime', sites.findSite, sites.getRunTime, sites.fmtRunTime);
+  app.post('/account/sites/:name/runtime', sites.findSite, sites.getRunTime, sites.suggestRunTime, sites.setRunTime, sites.clean_proc_runtime, sites.fmtRunTime);
+  app.get('/account/sites/:name/runtime', sites.findSite, sites.getRunTime, sites.fmtRunTime);
+  app.get('/account/sites/:name/runtime/:field', sites.findSite, sites.getRunTime, sites.getRunTimeOption, sites.fmtRunTime);
+  app.post('/account/sites/:name/runtime/:field', sites.findSite, sites.getRunTime,  sites.setRunTimeOption, sites.clean_proc_runtime, sites.fmtRunTime);
+  app.delete('/account/sites/:name/runtime/:field', sites.findSite, sites.getRunTime, sites.delRunTimeOption, sites.clean_proc_runtime, sites.fmtRunTime);
+  app.post('/account/sites/:name/views', sites.findSite, sites.createView);
+  app.delete('/account/sites/:name/views/:viewName', sites.findSite, sites.deleteView);
+
   // account > groups
   var groups = require('./views/account/groups/index');
   app.all('/account/groups*', groups.ensureFacebook);
@@ -192,19 +232,19 @@ exports = module.exports = function(app, passport) {
   app.get('/account/groups/api/*', groups.groups);
 
   //account > settings > social
-  app.get('/account/settings/twitter/', passport.authenticate('twitter', { callbackURL: '/account/settings/twitter/callback/' }));
+  app.get('/account/settings/twitter/', passport.authenticate('twitter', { callbackURL: oauth_base + '/account/settings/twitter/callback/' }));
   app.get('/account/settings/twitter/callback/', require('./views/account/settings/index').connectTwitter);
   app.get('/account/settings/twitter/disconnect/', require('./views/account/settings/index').disconnectTwitter);
-  app.get('/account/settings/github/', passport.authenticate('github', { callbackURL: '/account/settings/github/callback/' }));
-  app.get('/account/settings/github/callback/', require('./views/account/settings/index').connectGitHub);
+  app.get('/account/settings/github/', passport.authenticate('github', { callbackURL: oauth_base + '/oauth/account/settings/github/callback/' }));
+  app.get('/oauth/account/settings/github/callback/', require('./views/account/settings/index').connectGitHub);
   app.get('/account/settings/github/disconnect/', require('./views/account/settings/index').disconnectGitHub);
-  app.get('/account/settings/facebook/', passport.authenticate('facebook', { callbackURL: '/account/settings/facebook/callback/' }));
+  app.get('/account/settings/facebook/', passport.authenticate('facebook', { callbackURL: oauth_base + '/account/settings/facebook/callback/' }));
   app.get('/account/settings/facebook/callback/', require('./views/account/settings/index').connectFacebook);
   app.get('/account/settings/facebook/disconnect/', require('./views/account/settings/index').disconnectFacebook);
-  app.get('/account/settings/google/', passport.authenticate('google', { callbackURL: '/account/settings/google/callback/', scope: ['profile email'] }));
+  app.get('/account/settings/google/', passport.authenticate('google', { callbackURL: oauth_base + '/account/settings/google/callback/', scope: ['profile email'] }));
   app.get('/account/settings/google/callback/', require('./views/account/settings/index').connectGoogle);
   app.get('/account/settings/google/disconnect/', require('./views/account/settings/index').disconnectGoogle);
-  app.get('/account/settings/tumblr/', passport.authenticate('tumblr', { callbackURL: '/account/settings/tumblr/callback/' }));
+  app.get('/account/settings/tumblr/', passport.authenticate('tumblr', { callbackURL: oauth_base + '/account/settings/tumblr/callback/' }));
   app.get('/account/settings/tumblr/callback/', require('./views/account/settings/index').connectTumblr);
   app.get('/account/settings/tumblr/disconnect/', require('./views/account/settings/index').disconnectTumblr);
 
@@ -225,5 +265,6 @@ exports = module.exports = function(app, passport) {
   //route not found
   // Proxy anything not listed above or not found into the ORIGIN target if
   // logged in, otherwise send to usual 404 handler.
-  app.all('*', maybeProxy, require('./views/http/index').http404);
+  // app.all('*', maybeProxy, require('./views/http/index').http404);
+  app.all('*', require('./views/http/index').http404);
 };

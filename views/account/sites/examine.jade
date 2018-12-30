@@ -1,0 +1,462 @@
+extends ../../../layouts/account
+
+block head
+  title My Sites
+  //- link(rel='stylesheet', href='/views/account/sites/index.min.css?#{cacheBreaker}')
+  //- link(rel='stylesheet', href='/vendor/bootstrap-toggle/css/bootstrap-toggle.min.css?#{cacheBreaker}')
+  link(rel='stylesheet', href='/vendor/bootstrap-switch/css/bootstrap3/bootstrap-switch.min.css')
+  link(rel='stylesheet', href='/vendor/chosen/chosen.min.css')
+  style(type='text/css')
+    :css
+      .template-site {
+        display: none;
+      }
+
+      #create INPUT.site-name {
+        text-align: right;
+      }
+
+      #Details .tab-content {
+        text-align: center;
+      }
+
+block feet
+  //- script(src='/views/account/sites/index.min.js?#{cacheBreaker}')
+  //- script(src='//#{site.domain}/api/v1/status.js')
+  script(src='/vendor/d3/d3.min.js')
+  script(src='/vendor/jquery-qrcode/jquery.qrcode.min.js')
+  script(src='/vendor/chosen/chosen.jquery.min.js')
+  //- script(src='/vendor/bootstrap-toggle/js/bootstrap-toggle.min.js')
+  script(src='/vendor/bootstrap-switch/js/bootstrap-switch.min.js')
+  script(src='/views/account/sites/index.js?#{cacheBreaker}')
+
+block body
+  div.row
+    div.col-sm-12
+      div.page-header
+        h1 #{name}
+
+  div.row#Inspector(data-ajax-target='')
+    div.col-xs-3
+
+      div.tabbable.tabs-left
+        ul.nav.nav-pills.nav-stacked(role="tablist")
+          li.active(role="presentation")
+            a(role="tab", data-toggle="tab", href="#Overview")
+              i.fa.fa-home
+              = ' Overview'
+          li(role="presentation")
+            a(role="tab", data-toggle="tab", href="#Views")
+              i.fa.fa-users
+              = ' Views'
+          li(role="presentation")
+            a(role="tab", data-toggle="tab", href="#Uploaders")
+              i.fa.fa-cloud-upload
+              = ' Uploaders'
+          li(role="presentation")
+            a(role="tab", data-toggle="tab", href="#Pebble")
+              i.fa.fa-cloud-download
+              = ' Pebble'
+
+    div.col-xs-9
+        .tab-content
+
+          div.tab-pane.active#Overview(role="tabpanel", data-ajax-target='./#{name}/runtime')
+            h4
+              i.fa.fa-home
+              = ' Overview'
+            :markdown
+              Quick summary of site status, and some handy links.
+            div.panel.panel-default
+            
+              .panel-heading
+                a.v.view
+                  tt
+                    span.v.name
+                    | #{bases.viewer}
+              //- div.panel-body(data-ajax-target='//#{site.domain}/api/v1/status.js')
+              div.panel-body
+                span.v.status
+                img.v.status
+                tt
+                  a.mqtt-upload.hidden MQTT
+                tt
+                  a.http-upload.hidden HTTP
+                div.row
+                  a.v.view.btn
+                    i.fa.fa-anchor
+                    | View
+                  a.btn.v.clock-mode Clock mode
+              .panel-body
+                label.btn.btn-default
+                  = ' Custom title '
+                  input.e.env.CUSTOM_TITLE(type="text", name="CUSTOM_TITLE")
+              .panel-body
+                label.btn.btn-default
+                  = ' Time format '
+                  input.binary-data-label.e.env.TIME_FORMAT.toggle-check(type="checkbox", checked="checked", data-size="mini", data-toggle="toggle", data-on="12", data-off="24", name="TIME_FORMAT")
+                label.btn.btn-default
+                  = ' Theme '
+                  input.binary-data-label.e.env.THEME.toggle-check(type="checkbox", checked="checked", data-size="mini", data-toggle="toggle", data-on="default", data-off="colors", name="THEME")
+                label.btn.btn-default
+                  = ' Nightmode '
+                  input.e.env.NIGHT_MODE.binary-data-label.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="On", data-off="Off", name="NIGHT_MODE")
+              .panel-heading
+                label.btn.btn-default
+                  = ' Show raw data '
+                  input.enabler.enable_rawbg.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-onx="mg/dL", data-offx="mmol", value="rawbg")
+              div.panel-body
+                label.btn.btn-default
+                  = ' When  '
+                  select.e.env.SHOW_RAWBG.chosen-select(data-placeholder="Enable", data-width="51", name="SHOW_RAWBG")
+                    option(selected="selected", value="never")
+                      | never
+                    option( value="always")
+                      | always
+                    option(value="noise")
+                      | noise
+              //- div.panel-body
+                  label.btn.btn-default
+                    = ' Enable '
+                    select.chosen-select(multiple="multiple", data-placeholder="Enable" )
+                      option
+                        | careportal
+                      option
+                        | rawbg
+                      option
+                        | iob
+                      option
+                        | cob
+                      option
+                        | bwp
+                      option
+                        | cage
+                      option(selected="selected")
+                        | delta
+                      option(selected="selected")
+                        | direction
+                      option(selected="selected")
+                        | upbat
+                      option(selected="selected")
+                        | upbat
+                      option(selected="selected")
+                        | ar2
+                      option
+                        | simplealarms
+                      option(selected="selected")
+                        | errorcodes
+                      option
+                        | treatmentnotify
+                      option
+                        | basal
+                      option
+                        | pushover
+                      option
+                        | maker
+
+              .panel-footer
+                    label.btn.btn-default
+                      = 'Units '
+                      input.binary-data-label.e.env.DISPLAY_UNITS.toggle-check(type="checkbox", checked="checked", data-size="mini", data-toggle="toggle", data-on="mg/dL", data-off="mmol", name="DISPLAY_UNITS")
+            //- div.panel.panel-default
+              //- .panel-heading
+                  label.btn.btn-default
+                    = ' Careportal '
+                    input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-onx="mg/dL", data-offx="mmol")
+              //- .panel-heading
+            div.panel.panel-default
+              .panel-heading
+                label.btn.btn-default
+                  = ' Careportal '
+                  input.enabler.enable_careportal.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-onx="mg/dL", data-offx="mmol", value="careportal")
+              //- .panel-heading
+                label.btn.btn-default
+                  = ' Insulin on board[ '
+                  input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-onx="mg/dL", data-offx="mmol")
+              //- .panel-heading
+                label.btn.btn-default
+                  = ' Carbs on board '
+                  input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-onx="mg/dL", data-offx="mmol")
+              //- .panel-heading
+                label.btn.btn-default
+                  = ' Bolus wizard preview '
+                  input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-onx="mg/dL", data-offx="mmol")
+              //- .panel-body
+              //- ul.list-group
+                li.list-group-item
+                  label.btn.btn-default
+                    = ' Warn '
+                    input.e.env(type="number")
+                  :markdown
+                    When `BWP` is greater than this, trigger warning.
+                li.list-group-item
+                  label.btn.btn-default
+                    = ' Urgent '
+                    input.e.env(type="number")
+                  :markdown
+                    When `BWP` is greater than this, trigger warning.
+                li.list-group-item
+                  label.btn.btn-default
+                    = ' Snooze '
+                    tt
+                      = ' minutes'
+                    input.e.env(type="number")
+                  :markdown
+                    When BG is higher than target high and `BWP` is less than
+                    snooze, alarms will be snoozed this long.
+              //- .panel-heading
+                .panel-title
+                  h5
+                    = ' Treatments '
+              //- .panel-body
+                label.btn.btn-default
+                  = ' Use basal profile '
+                  input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="On", data-off="Off")
+                label.btn.btn-default
+                  = ' Treatment notifications '
+                  input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="On", data-off="Off")
+              //- .panel-body
+                  label.btn.btn-default
+                    = ' Treatment snoozes alarms '
+                    input.e.env(type="number")
+                  tt
+                    = ' minutes'
+
+            div.panel.panel-default
+              .panel-heading
+                h4.panel-title Alarms
+
+              .panel-body.configure_alarms
+                label.btn.btn-default(for="xxxx")
+                  = 'Predictive '
+                  input.alarm_type.enable_predict.toggle-check(id="xxxx", type="checkbox", checked="checked", data-size="mini", data-toggle="toggle", data-onx="mg/dL", data-offx="mmol", value="predict")
+                label.btn.btn-default(for="xxxx_simple")
+                  = ' Simple '
+                  input.alarm_type.enable_simple.toggle-check(id="xxxx_simple", type="checkbox", data-size="mini", data-toggle="toggle", data-onx="mg/dL", data-offx="mmol", value="simple")
+
+              .panel-heading
+                  = ' Time ago  '
+              .panel-body
+                .row
+                  .input-group
+                    p.input-group-addon
+                      = ' Warn when time ago exceeds '
+                    input.form-control.e.env.ALARM_TIMEAGO_WARN_MINS(type="number", name="ALARM_TIMEAGO_WARN_MINS")
+                    span.input-group-addon
+                      tt minutes
+                    span.input-group-addon
+                      input.binary-data-on-off.toggle-check.e.env.ALARM_TIMEAGO_WARN(type="checkbox", checked="checked", data-size="mini", data-toggle="toggle", data-on="alarm", data-off="do nothing", name="ALARM_TIMEAGO_WARN")
+                  .input-group
+                    p.input-group-addon
+                      = ' Urgent alarm when time ago exceeds '
+                    input.form-control.e.env.ALARM_TIMEAGO_URGENT_MINS(type="number", name="ALARM_TIMEAGO_URGENT_MINS")
+                    span.input-group-addon
+                      tt minutes
+                    span.input-group-addon
+                      input.binary-data-on-off.toggle-check.e.env.ALARM_TIMEAGO_URGENT(type="checkbox", checked="checked", data-size="mini", data-toggle="toggle", data-on="alarm", data-off="do nothing", name="ALARM_TIMEAGO_URGENT")
+
+              .panel-footer
+                //- = ' Custom thresholds '
+                //- .panel-body
+                label.btn.btn-default
+                  = ' Custom thresholds  '
+                  input.toggle-check.enabler.enable_simplealarms.e.env.ENABLED_SIMPLEALARMS(type="checkbox", checked="checked", data-size="mini", data-toggle="toggle", data-on="alarm", data-off="display", value="simplealarms")
+
+              table
+                tr
+                  td
+                    label.btn.btn-default.form-control
+                      = ' High BG '
+                  td.input-group
+                    input.e.env.BG_HIGH.form-control(type="number", size="100", maxlength="3", name="BG_HIGH")
+                    span.input-group-addon
+                      = ' mg/dL'
+                    //- span.input-group-addon
+                      input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="Urgent alarm", data-off="Display")
+
+                tr
+                  td
+                    label.btn.btn-default.form-control
+                      = ' Target top '
+                  td.input-group
+                    input.e.env.BG_TARGET_TOP.form-control(type="number", size="100", maxlength="3", name="BG_TARGET_TOP")
+                    span.input-group-addon
+                      = ' mg/dL'
+                    //- span.input-group-addon
+                      input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="Urgent alarm", data-off="Display")
+
+                tr
+                  td
+                    label.btn.btn-default.form-control
+                      = ' Target bottom '
+                  td.input-group
+                    input.e.env.BG_TARGET_BOTTOM.form-control(type="number", size="100", maxlength="3", name="BG_TARGET_BOTTOM")
+                    span.input-group-addon
+                      = ' mg/dL'
+                    //- span.input-group-addon
+                      input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="Urgent alarm", data-off="Display")
+
+                tr
+                  td
+                    label.btn.btn-default.btn.form-control
+                      = ' Low BG '
+                  td.input-group
+                    input.e.env.BG_LOW.form-control(type="number", size="100", maxlength="3", name="BG_LOW")
+                    span.input-group-addon
+                      = ' mg/dL'
+                    //- span.input-group-addon
+                      input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="Urgent alarm", data-off="Display")
+
+
+
+              //- .panel-heading
+                label.btn.btn-default
+                  = ' Cannula age '
+                  input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="On", data-off="Off")
+              //- ul.list-group
+                li.list-group-item
+                  label.btn.btn-default
+                    = ' Notifications '
+                    input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="On", data-off="Off")
+                  :markdown
+                    Notify when the time in *hours* since the last site change
+                    indicates upcoming, change, and overdue events.
+                li.list-group-item
+                  label.btn.btn-default
+                    = ' Notify '
+                    input.e.env(type="number")
+                    tt
+                      = ' hours '
+                  :markdown
+                    since last site change that a cannula change is coming
+                    soon.
+                li.list-group-item
+                  label.btn.btn-default
+                    = ' Warn '
+                    input.e.env(type="number")
+                    tt
+                      = ' hours '
+                  :markdown
+                    since last site change that cannula is due to be changed.'
+                li.list-group-item
+                  label.btn.btn-default
+                    = ' Alarm '
+                    input.e.env(type="number")
+                    tt
+                      = ' hours '
+                  :markdown
+                    since last site change that cannula is overdue for
+                    change.'
+
+              //- table.table
+                //- tr
+                  th(colspan="1")
+                    = ''
+                  th
+                    = ''
+                  th
+                    = ''
+                tr
+                  td(colspan="1")
+                  td
+                  td
+
+                tr
+                  td(colspan="3")
+
+
+            div.panel.panel-warning
+              div.panel-body
+                div
+                  button.delete-site.btn.btn-danger.btn-sm
+                    i.fa.fa-trash-o
+
+
+          div.tab-pane#Views(role="tabpanel")
+
+            h4
+              i.fa.fa-users
+              = ' Views'
+            :markdown
+              Manage urls to share.
+
+            table.table#views-list(data-ajax-target="/account/sites/#{site.name}/views")
+              tbody.head
+                tr
+                  th #
+                  th Name
+                  th(colspan="2") Url
+                  th Permission
+                  th(colspan="1") 
+              tbody.body
+              tbody.template.hidden
+                tr.site-row
+                  td
+                    span.t.number #
+                  td
+                    a.t.url.name
+                      span.t.name Name
+                  td(colspan="2")
+                    a.t.href.url Url
+                  td
+                    span.t.permission
+                      | World readable, anyone with url can see.
+                  //- td
+                  //-  span.t.scopes Scopes
+                  td
+                    button.delete-view.btn.btn-xs.btn-danger(type="button")
+                      i.fa.fa-trash-o
+              tbody.tail.add-new-view
+                tr
+                  td(colspan="5")
+                    form(method="POST", action="/account/sites/#{site.name}/views")
+                      div.input-group
+                        input.form-control(type="text", name="viewName", placeholder="Name", aria-describedby="new-view-name")
+                        span.input-group-addon#new-view-name #{site.guest}
+                        div.input-group-btn
+                          button.btn.btn-success(type="submit") Create public view
+
+          div.tab-pane#Uploaders(role="tabpanel")
+            div#Details(role="dialog", tabindex="-1")
+              a.v.mqtt-upload.hidden
+              a.v.http-upload.hidden
+              .xxmodal-dialog(role="document")
+                .xxxxmodal-content
+                  .xxxmodal-header
+                    h4 
+                      i.fa.fa-cloud-upload
+                      = ' Uploading Details'
+                    button.close(data-dismiss="modal")
+                      i.fa.fa-close
+                  .modal-body
+                    p Scan this image
+                    ul.nav.nav-tabs(role="tablist")
+                      li.active(role="presentation")
+                        a(href="#mqtt-upload-qr", role="tab", data-toggle="tab")
+                          | MQTT
+                      li
+                        a(href="#http-upload-qr", data-toggle="tab")
+                          | HTTP
+                    .tab-content
+                      div.active.tab-pane#mqtt-upload-qr(role="tabpanel")
+                        div.code
+                        p
+                          tt.uri
+                      div.tab-pane#http-upload-qr(role="tabpanel")
+                        div.code
+                        p
+                          tt.uri
+
+          div.tab-pane#Pebble(role="tabpanel", data-ajax-target="/account/sites/#{site.name}/views")
+            h4
+              i.fa.fa-cloud-download
+              = ' Pebble'
+            div.list-group
+              div.pebble-template
+                a.list-group-item.t.pebble
+                  span.badge.t.name Name
+                  h4.list-group-item-heading
+                    span.t.pebble-text Link
+
+
+

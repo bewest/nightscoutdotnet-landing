@@ -15,6 +15,10 @@ module.exports = function(grunt) {
             src: ['backbone.js'], dest: 'public/vendor/backbone/'
           },
           {
+            expand: true, cwd: 'bower_components/chosen/',
+            src: ['chosen**'], dest: 'public/vendor/chosen/'
+          },
+          {
             expand: true, cwd: 'bower_components/font-awesome/',
             src: ['fonts/**', 'less/**'], dest: 'public/vendor/font-awesome/'
           },
@@ -25,6 +29,25 @@ module.exports = function(grunt) {
           {
             expand: true, cwd: 'bower_components/jquery/dist/',
             src: ['jquery.js'], dest: 'public/vendor/jquery/'
+          },
+          {
+            expand: true, cwd: 'bower_components/bootstrap-switch/dist/',
+            src: ['css/bootstrap3/bootstrap-switch.min.css'],
+            dest: 'public/vendor/bootstrap-switch/'
+          },
+          {
+            expand: true, cwd: 'bower_components/bootstrap-switch/dist/',
+            src: ['js/bootstrap-switch.min.js'],
+            dest: 'public/vendor/bootstrap-switch/'
+          },
+          {
+            expand: true, cwd: 'bower_components/bootstrap-toggle/',
+            src: ['js/bootstrap-toggle.min.js', 'css/bootstrap-toggle.min.css'],
+            dest: 'public/vendor/bootstrap-toggle/'
+          },
+          {
+            expand: true, cwd: 'bower_components/jquery-qrcode/',
+            src: ['jquery.qrcode.min.js'], dest: 'public/vendor/jquery-qrcode/'
           },
           {
             expand: true, cwd: 'bower_components/jquery.cookie/',
@@ -41,6 +64,10 @@ module.exports = function(grunt) {
           {
             expand: true, cwd: 'bower_components/underscore/',
             src: ['underscore.js'], dest: 'public/vendor/underscore/'
+          },
+          {
+            expand: true, cwd: 'bower_components/d3/',
+            src: ['d3.min.js'], dest: 'public/vendor/d3/'
           }
         ]
       }
@@ -221,5 +248,6 @@ module.exports = function(grunt) {
 
   grunt.registerTask('default', ['copy:vendor', 'newer:uglify', 'newer:less', 'concurrent']);
   grunt.registerTask('build', ['copy:vendor', 'uglify', 'less']);
+  grunt.registerTask('heroku', ['build']);
   grunt.registerTask('lint', ['jshint']);
 };

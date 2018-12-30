@@ -1,0 +1,125 @@
+
+extends ../../../layouts/account
+
+block head
+  title My Sites
+  //- link(rel='stylesheet', href='/views/account/sites/index.min.css?#{cacheBreaker}')
+  style(type='text/css')
+    :css
+      .template-site {
+        display: none;
+      }
+
+      #create INPUT.site-name {
+        text-align: right;
+      }
+
+      #Details .tab-content {
+        text-align: center;
+      }
+
+block feet
+  //- script(src='/views/account/sites/index.min.js?#{cacheBreaker}')
+  script(src='/vendor/d3/d3.min.js')
+  script(src='/vendor/jquery-qrcode/jquery.qrcode.min.js')
+  script(src='/views/account/sites/index.js?#{cacheBreaker}')
+
+block body
+  div.row
+    div.col-sm-12
+      div.page-header
+        h1 My Sites
+  div.row
+    div.col-sm-12
+      table.table
+        thead
+          tr
+            th Name
+            th Status
+            th
+        tbody.sites.list#site-list(data-ajax-target='/account/sites/list.json')
+        tbody.sites.skeleton.template-site
+          tr.site-row
+            td
+              //- input.v.name
+              a.v.view
+                tt
+                  span.v.name
+                  | #{bases.viewer}
+            td
+              span.v.status
+              img.v.status
+            td
+              span.upload-details.btn(data-toggle="modal", data-target="#Details")
+                i.fa.fa-cloud-upload
+                | Uploaders
+                a.mqtt-upload.hidden
+                a.http-upload.hidden
+                a.http-xdrip-upload.hidden
+              a.v.settings.btn
+                i.fa.fa-cog
+
+              a.v.view.btn
+                i.fa.fa-anchor
+                | View
+              a.btn.v.clock-mode Clock mode
+              button.delete-site.btn.btn-danger.btn-sm
+                i.fa.fa-trash-o
+
+  div.row
+    div.col-sm-12
+      div#details
+      div#create
+        h2 Create a new site
+        form#create_site(method="POST")
+          .form-group
+            label
+              div Name 
+              tt
+                input.control.site-name(type="text", name="name")
+                | #{bases.viewer}
+          button.btn.btn-default(type="submit")
+            i.fa.fa-plus
+            |  Add new site
+
+  div.modal.fade#Details(role="dialog", tabindex="-1")
+    .modal-dialog(role="document")
+      .modal-content
+        .modal-header
+          h4 Uploading Details
+          button.close(data-dismiss="modal")
+            i.fa.fa-close
+        .modal-body
+          p Scan this image
+          ul.nav.nav-tabs(role="tablist")
+            li.active(role="presentation")
+              a(href="#mqtt-upload-qr", role="tab", data-toggle="tab")
+                | MQTT
+            li
+              a(href="#http-upload-qr", data-toggle="tab")
+                | HTTP
+            li
+              a(href="#http-xdrip-beta-upload-qr", data-toggle="tab")
+                tt xdrip (beta v2.0.0)
+            li
+              a(href="#http-xdrip-upload-qr", data-toggle="tab")
+                tt xdrip (prev beta v2.0.0)
+          .tab-content
+            div.active.tab-pane#mqtt-upload-qr(role="tabpanel")
+              div.code
+              p
+                tt.uri
+            div.tab-pane#http-upload-qr(role="tabpanel")
+              div.code
+              p
+                tt.uri
+            div.tab-pane#http-xdrip-beta-upload-qr(role="tabpanel")
+              div.code
+              p
+                tt.uri
+            div.tab-pane#http-xdrip-upload-qr(role="tabpanel")
+              div.code
+              p
+                tt.uri
+          div#qrcode
+

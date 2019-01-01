@@ -16,7 +16,8 @@ function configure ( ) {
 */
 exports.port = process.env.PORT || 3000;
 exports.mongodb = {
-  uri: process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || 'mongodb://localhost/drywall'
+  uri: process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || 'mongodb://localhost/drywall',
+  sessionuri: process.env.MONGO_SESSION_URI || null
 };
 exports.companyName = decodeURIComponent(process.env.COMPANY_NAME) || 'Acme, Inc.';
 exports.projectName = decodeURIComponent(process.env.PROJECT_NAME) || 'Drywall';
@@ -59,6 +60,13 @@ exports.smtp = {
 };
 exports.SCRIPT_NAME = process.env.SCRIPT_NAME || '';
 exports.oauth_base = process.env.OAUTH_BASE;
+exports.redis = {
+  use_redis_sessions : process.env.USE_REDIS_SESSIONS ? true: false,
+  url: process.env.REDIS_URL || '',
+  host: process.env.REDIS_HOST || null,
+  port: process.env.REDIS_PORT || null,
+};
+
 exports.oauth = {
   twitter: {
     key: process.env.TWITTER_OAUTH_KEY || '',

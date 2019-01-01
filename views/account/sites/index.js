@@ -305,6 +305,8 @@ function guestPrefixes (bases) {
 
 function sitePrefixes (bases) {
   function iter (item) {
+    // console.log(item);
+    if (!item) return;
     item = item.toJSON( );
     var mqtt_auth = [ item.uploader_prefix, item.api_secret ].join(':');
     item.domain = item.name + bases.viewer;
@@ -324,8 +326,8 @@ exports.list = function list (req, res, next) {
   req.user.roles.account.populate('sites', 
     function (err, account) {
       var sites = account.sites;
-      sites = sites.map(sitePrefixes(get_bases(req)));
       console.log('SITES', sites);
+      sites = sites.map(sitePrefixes(get_bases(req)));
       res.json(sites);
   }) ;
   // var sites = req.user.roles.account.sites;

@@ -10,9 +10,13 @@ var config = require('./config'),
     http = require('http'),
     path = require('path'),
     passport = require('passport'),
+    RedisSessionsStore = require('./lib/middleware/')(session),
     mongoose = require('mongoose'),
     helmet = require('helmet'),
     csrf = require('csurf');
+
+var ConnectRedisSessions = require( "connect-redis-sessions" );
+
 
 //create express app
 var app = express();
@@ -28,6 +32,7 @@ app.db = mongoose.createConnection(config.mongodb.uri);
 app.db.on('error', console.error.bind(console, 'mongoose connection error: '));
 app.db.once('open', function () {
   //and... we have a data store
+  console.log("we have a db");
 });
 
 //config data models
@@ -40,7 +45,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 var appname = config.appname || "Nightscout";
 
-var sessionStore = new mongoStore({ url: config.mongodb.uri });
+var sessionStore = new mongoStore({ url: config.mongodb.sessionuri || config.mongodb.uri });
 var generateId = null;
 // sessionStore = new RedisSessionsStore({namespace: rsapp, appname: appname});
 
@@ -55,17 +60,16 @@ app.use(require('method-override')());
 app.use(cookieParser(config.cryptoKey));
 if (config.redis.use_redis_sessions) {
   var redis_config = {
-      namespace: rsapp
+      namespace: appname + "sessions"
     , appname: appname
-    , client: {
-      url: config.redis.url,
-      host: config.redis.host,
-      port: config.redis.port
+    , url: config.redis.url
+    , host: config.redis.host
+    , port: config.redis.port
 
-    }
   };
   sessionStore = new RedisSessionsStore(redis_config);
-  generateId = RedisSessionsStore.generateId;
+  // generateId = RedisSessionsStore.generateId;
+  // console.log('generateId', generateId( ));
 }
 app.use(session({
   resave: true,
@@ -74,7 +78,7 @@ app.use(session({
   genid: generateId,
   // cookie: { path: '/', domain: '.diabetes.watch', maxAge: 1000 * 60 * 60 * 24 * 30 },
   cookie: { domain: config.cookie.domain },
-  name: 'drywall.connect.sid',
+  name: 'drywall.rslllls.sid',
   store: sessionStore
 }));
 app.use(passport.initialize());

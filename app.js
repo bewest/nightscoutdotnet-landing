@@ -68,7 +68,7 @@ if (config.redis.use_redis_sessions) {
 
   };
   sessionStore = new RedisSessionsStore(redis_config);
-  // generateId = RedisSessionsStore.generateId;
+  generateId = RedisSessionsStore.generateId;
   // console.log('generateId', generateId( ));
 }
 app.use(session({

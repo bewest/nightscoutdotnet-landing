@@ -129,11 +129,23 @@ exports = module.exports = function(app, passport) {
     ));
   }
 
+  // define's session.passport.user session
   passport.serializeUser(function(user, done) {
+    // TODO: make hosted site token
+    /*
+    var p = User.findOrCreateToken(user, function (err, resp) {
+      done(err, resp.token);
+    });
+    */
     done(null, user._id);
   });
 
+  // given session.passport.user, returns req.user
   passport.deserializeUser(function(id, done) {
+    // TODO: retrieve hosted user given token id
+    /*
+      User.fetchUserByToken(id, done);
+    */
     app.db.models.User.findOne({ _id: id }).populate('roles.admin').populate('roles.account').exec(function(err, user) {
       if (user && user.roles && user.roles.admin) {
         user.roles.admin.populate("groups", function(err, admin) {

@@ -76,6 +76,7 @@ exports.createView = function (req, res, next) {
 
   req.app.db.models.View.findOneAndUpdate(q, inputs, {upsert: true}, function (err, view) {
     if (err) {
+      console.log("ERROR", err);
       return next(err);
     }
     res.status(201);
@@ -323,6 +324,13 @@ function sitePrefixes (bases) {
 exports.list = function list (req, res, next) {
   // req.app.db
 
+  console.log("current ID", req.user.roles.account._id);
+  req.app.db.models.Site.find({account: {id: req.user.roles.account._id}}).
+    exec(function (err, sites) {
+      sites = sites.map(sitePrefixes(get_bases(req)));
+      res.json(sites);
+    });
+  /*
   req.user.roles.account.populate('sites', 
     function (err, account) {
       var sites = account.sites;
@@ -330,6 +338,7 @@ exports.list = function list (req, res, next) {
       sites = sites.map(sitePrefixes(get_bases(req)));
       res.json(sites);
   }) ;
+  */
   // var sites = req.user.roles.account.sites;
   console.log('account', req.user.roles.account);
   // req.app.db.models.Site.find

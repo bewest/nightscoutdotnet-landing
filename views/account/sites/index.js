@@ -349,6 +349,7 @@ exports.remove = function(req, res, next) {
   var account_id = req.user.roles.account._id;
   // var site = req.sites.filter(function (f) { return f.name == name && req.user.roles.account._id == f.account.id; });
   var site = req.sites.filter(function (f) { 
+
     return (f.name == name && f.account.id.toString( ) == account_id.toString( ));
   }).pop( );
   console.log("REMOVE XX", site);

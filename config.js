@@ -38,6 +38,7 @@ exports.proxy = {
   },
   api: process.env['MULTIENV_API'] || 'http://localhost:3434',
   billing: process.env['BILLING_API'] || 'http://localhost:6161',
+  backplane: process.env['BACKPLANE_API'] || 'http://localhost:4747',
   provision: process.env['PROVISION_API'] || 'http://localhost:6060' // provision.docker:6060
 }
 exports.mqtt = {

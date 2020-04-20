@@ -307,7 +307,8 @@ function sitePrefixes (bases) {
   function iter (item) {
     item = item.toJSON( );
     var mqtt_auth = [ item.uploader_prefix, item.api_secret ].join(':');
-    item.domain = item.name + bases.viewer;
+    // item.domain = item.name + bases.viewer;
+    item.domain = item.compute + bases.viewer;
     item.upload = 'https://' + item.api_secret + '@' + item.uploader_prefix + bases.uploader + '/api/v1';
     item.xdrip = item.api_secret + '@' + 'https://' + item.uploader_prefix + bases.uploader + '/api/v1';
     item.mqtt_monitor = 'tcp://' + mqtt_auth + '@' + bases.mqtt.public;
@@ -411,19 +412,22 @@ exports.create = function(req, res, next) {
   var mqtt_auth = [ uploader_prefix, api_secret ].join(':');
   var private_mqtt = 'tcp://' + mqtt_auth + '@' + req.app.config.mqtt.private;
   inst.MQTT_MONITOR = private_mqtt;
+
+  var account_id = req.user.roles.account._id;
   var posted = {
-    name: req.body.name
+    name: req.body.name || 'my'
   , uploader_prefix: uploader_prefix
-  , salter: internal_name
-  , api_secret: api_secret
-  , internal_name: internal_name
+  // , salter: internal_name
+  // , api_secret: api_secret
+  // , internal_name: internal_name
+  , wp_subscriber_id: account_id
   };
-  var api = req.app.config.proxy.provision;
+  var api = req.app.config.proxy.backplane;
   // var api = req.app.config.proxy.api;
   // var creator_url = api + '/environs/' + inst.internal_name;
   // XXX
-  var account_id = req.user.roles.account._id;
-  var creator_url = api + '/accounts/' + account_id + '/sites';
+  // var creator_url = api + '/accounts/' + account_id + '/sites';
+  var creator_url = api + '/resource';
   console.log('sending', creator_url, posted);
   // request.post({ url: creator_url, json: inst }, function done (err, result, body) { });
   request.post({ url: creator_url, json: posted }, function done (err, result, body) {
@@ -438,12 +442,16 @@ exports.create = function(req, res, next) {
     shasum.update(api_secret);
     var api_key = shasum.digest('hex');
     var fieldsToSet = {
-      name: req.body.name,
-      internal_name: internal_name,
+      name: body.name,
+      key: body.key,
+      compute: body.compute,
+      storage: body.storage,
+      internal_name: body.compute,
+      // internal_name: internal_name,
       account: { id: req.user.roles.account._id },
-      apikey: api_key,
-      api_secret: api_secret,
-      uploader_prefix: uploader_prefix,
+      // apikey: api_key,
+      // api_secret: api_secret,
+      // uploader_prefix: uploader_prefix,
       response: body
     };
 
@@ -453,9 +461,10 @@ exports.create = function(req, res, next) {
     // req.user.createSite(fieldsToSet,
     var q = {
       name: fieldsToSet.name
+    , key: body.key
     , account: fieldsToSet.account
     };
-    req.app.db.models.Site.findOneAndUpdate(q, fieldsToSet, {upsert: true}, function (err, site) {
+    req.app.db.models.Site.findOneAndUpdate(q, fieldsToSet, {new: true, upsert: true}, function (err, site) {
       req.site = site;
       // req.user.roles.account.sites.push(site);
       req.user.roles.account.sites.addToSet(site);

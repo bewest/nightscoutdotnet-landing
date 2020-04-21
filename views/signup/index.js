@@ -154,13 +154,15 @@ exports.signup = function(req, res){
         if (err) {
           return workflow.emit('exception', err);
         }
+        workflow.emit('sendWelcomeEmail');
         console.log("CREATING", user, account);
+        /*
         provisionAccount.call(workflow, req.app.config, user, account, function (err, body) {
           if (err) {
             return workflow.emit('exception', err);
           }
-          workflow.emit('sendWelcomeEmail');
         });
+        */
       });
     });
   });

@@ -6,3 +6,7 @@ pwd
 
 echo "done with setup"
 
+echo unsafe-perm = true > .npmrc
+npm install
+
+

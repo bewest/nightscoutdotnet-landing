@@ -12,6 +12,5 @@ env
 # service nginx restart
 
 # install and run
-npm install
 npm start
 

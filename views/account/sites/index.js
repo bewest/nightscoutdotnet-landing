@@ -34,14 +34,11 @@ exports.init = function(req, res, next){
 };
 
 exports.listView = function (req, res, next) {
-  var q = {
-    created_by: { id: req.user.roles.account._id }
-  , site: { id: req.hosted_site._id
-          , internal_name: req.hosted_site.internal_name
-    }
-  };
-  req.app.db.models.View.find(q, function (err, docs) {
-    var views = docs.map(guestPrefixes(req.bases));
+  var api = req.app.config.proxy.backplane;
+  var url = api + '/views/inspect/' + req.site.key;
+  request.get({ url: url, json: true }, function done (err, result, docs) {
+    if (err) { return next(err); }
+    var views = docs.views.map(guestPrefixes(req.bases));
     res.format({
       json: function ( ) {
         if (err) {
@@ -51,33 +48,20 @@ exports.listView = function (req, res, next) {
       }
     });
   });
+
 };
 
 exports.createView = function (req, res, next) {
-  var key = req.hosted_site.uploader_prefix.slice(0, 6);
+  var api = req.app.config.proxy.backplane;
+  var url = api + '/views/inspect/' + req.site.key;
+
   var name = req.body.viewName;
-  var expected_name = name + '-' + key;
-  var inputs = {
+  var stub = {
     name: name
-  , created_by: { id: req.user.roles.account._id }
-  , site: { id: req.hosted_site._id
-          , internal_name: req.hosted_site.internal_name
-    }
-  , key: key
-  , expected_name: expected_name
-
   };
-  console.log('creating new view', inputs);
-  var q = {
-    name: name
-  , key: key
-  , site: inputs.site
-  };
-
-  req.app.db.models.View.findOneAndUpdate(q, inputs, {upsert: true}, function (err, view) {
-    if (err) {
-      return next(err);
-    }
+  request.post({ url: url, json: stub }, function done (err, result, view) {
+    if (err) { return next(err); }
+    console.log(view);
     res.status(201);
     res.format({
       json: function ( ) {
@@ -87,7 +71,10 @@ exports.createView = function (req, res, next) {
         res.redirect('/account/sites/' + req.hosted_site.name);
       }
     });
+    next( );
   });
+
+
 };
 
 exports.deleteView = function (req, res, next) {
@@ -294,7 +281,7 @@ exports.examine = function (req, res, next) {
 
 function guestPrefixes (bases) {
   function iter (item) {
-    item = item.toJSON( );
+    // item = item.toJSON( );
     item.domain = item.expected_name + bases.guest;
     item.url = 'https://' + item.domain + '/';
     item.pebble = 'https://' + item.domain + '/pebble';

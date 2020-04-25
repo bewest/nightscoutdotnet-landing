@@ -1,14 +1,39 @@
 'use strict';
 
+var request = require('request');
+
 exports = module.exports = function(app, passport) {
   var LocalStrategy = require('passport-local').Strategy,
       TwitterStrategy = require('passport-twitter').Strategy,
       GitHubStrategy = require('passport-github').Strategy,
       FacebookStrategy = require('passport-facebook').Strategy,
       GoogleStrategy = require('passport-google-oauth').OAuth2Strategy,
+      CookieStrategy = require('passport-cookie'),
       TumblrStrategy = require('passport-tumblr').Strategy;
 
   console.log('passport local invocation');
+  passport.use('t1d-strategy', 
+    new CookieStrategy({
+      cookieName: 't1dpal_sid',
+      passReqToCallback: true
+      },
+      function (req, token, done) {
+        var api = app.config.proxy.backplane + '/sessions/get/' + token;
+        request({url: api, json: true}, function (err, raw, result) {
+          console.log('need user hydration from session', api, err, result);
+          app.db.models.User.findOne({"roles.account": result.id})
+            .populate('roles.admin')
+            .populate('roles.account')
+            .populate('roles.account.sites')
+            .exec(function(err, user) {
+              done(err, user);
+          });
+      
+        });
+      }
+    )
+  );
+
   passport.use(new LocalStrategy(
     function(username, password, done) {
       var conditions = { isActive: 'yes' };

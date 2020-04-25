@@ -17,6 +17,8 @@ function ensureAdmin(req, res, next) {
 }
 
 function ensureAccount(req, res, next) {
+  console.log('ensureAccount cookie', req.cookies);
+  console.log('ensureAccount session', req.session);
   if (req.user.canPlayRoleOf('account')) {
     if (req.app.config.requireAccountVerification) {
       if (req.user.roles.account.isVerified !== 'yes' && !/^\/account\/verification\//.test(req.url)) {
@@ -224,6 +226,25 @@ exports = module.exports = function(app, passport) {
   app.delete('/account/sites/:name/runtime/:field', sites.findSite, sites.getRunTime, sites.delRunTimeOption, sites.clean_proc_runtime, sites.fmtRunTime);
   app.post('/account/sites/:name/views', sites.findSite, sites.createView);
   app.delete('/account/sites/:name/views/:viewName', sites.findSite, sites.deleteView);
+
+  app.get('/hosted/key', ensureAuthenticated, ensureAccount, function (req, res, next) {
+    var ip = req.header('X-Forwarded-For') || req.ip;
+    var api = app.config.proxy.backplane + '/sessions/create/' + req.user.roles.account.id + '?ip=' + ip;
+    require('request').put({url: api, json: true}, function (err, raw, result) {
+      console.log('new session', api, result);
+      var cookie_name = 't1dpal_sid';
+      res.cookie(cookie_name, result.token, { domain: app.config.cookie.domain });
+      res.redirect('/hosted/site/');
+    });
+  });
+  app.all('/hosted/site*', passport.authenticate('t1d-strategy',
+    { session: false
+    , failureRedirect: '/account'
+    }));
+  app.get('/hosted/site/', sites.jsonIfXHR, sites.init);
+  app.post('/hosted/site/', sites.create);
+  app.delete('/hosted/site/:name', sites.remove);
+  app.get('/hosted/site/list.json', sites.list);
 
   // account > groups
   var groups = require('./views/account/groups/index');

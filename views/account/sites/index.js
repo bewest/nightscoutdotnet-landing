@@ -19,12 +19,13 @@ var renderSites = function(req, res, next) {
 
   var bases = get_bases(req);
 
+  console.log(req.user, req.user.roles.account.sites);
   req.user.roles.account.populate('sites', 
     function (err, account) {
       var sites = account.sites;
       sites = sites.map(sitePrefixes(bases));
       console.log('SITES', sites);
-      res.render('account/sites/index', {user: req.user, sites: sites, bases: bases });
+      res.render('account/sites/index', { sites: sites, bases: bases });
   }) ;
   // next( );
 }

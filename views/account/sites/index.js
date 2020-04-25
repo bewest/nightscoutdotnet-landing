@@ -10,6 +10,7 @@ function get_bases (req) {
   , mqtt: req.app.config.mqtt
   , guest: req.app.config.proxy.PREFIX.GUEST
   , pebble: req.app.config.proxy.PREFIX.PEBBLE
+  , debug_private_views: req.app.config.debug_private_views
   };
 
   return bases;
@@ -296,7 +297,7 @@ function sitePrefixes (bases) {
     item = item.toJSON( );
     var mqtt_auth = [ item.uploader_prefix, item.api_secret ].join(':');
     item.domain = item.name + bases.viewer;
-    if (req.app.config.debug_private_views) {
+    if (bases.debug_private_views) {
       item.domain = item.compute + bases.viewer;
     }
     item.upload = 'https://' + item.api_secret + '@' + item.uploader_prefix + bases.uploader + '/api/v1';

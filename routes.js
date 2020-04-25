@@ -30,6 +30,7 @@ function ensureAccount(req, res, next) {
   res.redirect('/');
 }
 
+const request = require('request');
 // Set up proxy module.
 var proxy = require('./proxy');
 
@@ -230,7 +231,7 @@ exports = module.exports = function(app, passport) {
   app.get('/hosted/key', ensureAuthenticated, ensureAccount, function (req, res, next) {
     var ip = req.header('X-Forwarded-For') || req.ip;
     var api = app.config.proxy.backplane + '/sessions/create/' + req.user.roles.account.id + '?ip=' + ip;
-    require('request').put({url: api, json: true}, function (err, raw, result) {
+    request.put({url: api, json: true}, function (err, raw, result) {
       console.log('new session', api, result);
       var cookie_name = 't1dpal_sid';
       res.cookie(cookie_name, result.token, { domain: app.config.cookie.domain });

@@ -295,8 +295,10 @@ function sitePrefixes (bases) {
   function iter (item) {
     item = item.toJSON( );
     var mqtt_auth = [ item.uploader_prefix, item.api_secret ].join(':');
-    // item.domain = item.name + bases.viewer;
-    item.domain = item.compute + bases.viewer;
+    item.domain = item.name + bases.viewer;
+    if (req.app.config.debug_private_views) {
+      item.domain = item.compute + bases.viewer;
+    }
     item.upload = 'https://' + item.api_secret + '@' + item.uploader_prefix + bases.uploader + '/api/v1';
     item.xdrip = item.api_secret + '@' + 'https://' + item.uploader_prefix + bases.uploader + '/api/v1';
     item.mqtt_monitor = 'tcp://' + mqtt_auth + '@' + bases.mqtt.public;

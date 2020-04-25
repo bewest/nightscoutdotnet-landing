@@ -45,6 +45,8 @@ exports.mqtt = {
   public: process.env['MQTT_PUBLIC'] || 'nightscout.net'
 , private: process.env['MQTT_PRIVATE'] || 'mqtt-mm2.docker'
 };
+var isNodeProd = process.env.NODE_ENV == 'production';
+exports.debug_private_views = parseInt(process.env.DEBUG_PRIVATE_VIEWS || (isNodeProd ? 0 : 1 )) ? true : false;
 exports.requireAccountVerification = false;
 exports.smtp = {
   from: {

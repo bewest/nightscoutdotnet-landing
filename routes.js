@@ -228,18 +228,29 @@ exports = module.exports = function(app, passport) {
   app.post('/account/sites/:name/views', sites.findSite, sites.createView);
   app.delete('/account/sites/:name/views/:viewName', sites.findSite, sites.deleteView);
 
+  app.get('/hosted/clear', ensureAuthenticated, ensureAccount, function (req, res, next) {
+    var cookie_name = 't1dpal_sid';
+    if (req.cookies.t1dpal_sid) {
+      res.clearCookie(cookie_name, { path: '/',  domain: app.config.cookie.domain });
+    }
+    next( );
+   
+  }, sites.jsonIfXHR, sites.init);
   app.get('/hosted/key', ensureAuthenticated, ensureAccount, function (req, res, next) {
+    var cookie_name = 't1dpal_sid';
+    res.clearCookie(cookie_name, { path: '/',  domain: app.config.cookie.domain });
     var ip = req.header('X-Forwarded-For') || req.ip;
     var api = app.config.proxy.backplane + '/sessions/create/' + req.user.roles.account.id + '?ip=' + ip;
     request.put({url: api, json: true}, function (err, raw, result) {
+      if (err) return next(err);
       console.log('new session', api, result);
-      var cookie_name = 't1dpal_sid';
-      res.cookie(cookie_name, result.token, { domain: app.config.cookie.domain });
+      res.cookie(cookie_name, result.token, { path: '/',  domain: app.config.cookie.domain });
       res.redirect('/hosted/site/');
     });
   });
   app.all('/hosted/site*', passport.authenticate('t1d-strategy',
     { session: false
+    // , flashFailure: "Wow"
     , failureRedirect: '/account'
     }));
   app.get('/hosted/site/', sites.jsonIfXHR, sites.init);

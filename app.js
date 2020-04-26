@@ -39,7 +39,7 @@ app.set('port', config.port);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-app.use(do_guest_rewrite);
+// app.use(do_guest_rewrite);
 //middleware
 app.use(require('morgan')('dev'));
 app.use(require('compression')());

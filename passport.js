@@ -21,11 +21,13 @@ exports = module.exports = function(app, passport) {
         var api = app.config.proxy.backplane + '/sessions/get/' + token;
         request({url: api, json: true}, function (err, raw, result) {
           console.log('need user hydration from session', api, err, result);
+          if (err) return done(err);
           app.db.models.User.findOne({"roles.account": result.id})
             .populate('roles.admin')
             .populate('roles.account')
             .populate('roles.account.sites')
             .exec(function(err, user) {
+              console.log('passport hydrating user', api, err, user);
               done(err, user);
           });
       

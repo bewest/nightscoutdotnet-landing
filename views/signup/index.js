@@ -469,12 +469,8 @@ exports.signupSocial = function(req, res){
         }
         // request.post({ url: provisionURI, json: inst }, cb);
 
-        provisionAccount.call(workflow, req.app.config, user, account, function (err, body) {
-          if (err) {
-            return workflow.emit('exception', err);
-          }
-          workflow.emit('sendWelcomeEmail');
-        });
+        workflow.emit('sendWelcomeEmail');
+        // provisionAccount.call(workflow, req.app.config, user, account, function (err, body) { if (err) { return workflow.emit('exception', err); } });
 
       });
     });

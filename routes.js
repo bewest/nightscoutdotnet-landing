@@ -196,6 +196,14 @@ exports = module.exports = function(app, passport) {
     , billing.fetch_payment_token
     , billing.renderPhase
   ) ;
+
+  var sb_middle = require('./lib/servicebot')(app, passport);
+  app.get('/new-account/:page', sb_middle, function (req, res, next) {
+    res.locals.email = req.user.email;
+    res.render('new-account/' + req.params.page || 'index');
+  });
+  app.post('/new-account/activate', function (req, res, next) {return sites.create(req, res, next); });
+
   app.get('/account/billing/plans'
     , billing.set_bases
     , billing.jsonIfXHR, billing.fetch_plans

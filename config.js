@@ -60,6 +60,10 @@ exports.smtp = {
     ssl: true
   }
 };
+
+exports.servicebot_id = process.env.SERVICEBOT_ID || '';
+exports.servicebot_key = process.env.SERVICEBOT_KEY || '';
+
 exports.SCRIPT_NAME = process.env.SCRIPT_NAME || '';
 exports.oauth_base = process.env.OAUTH_BASE;
 exports.oauth = {

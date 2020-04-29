@@ -76,7 +76,9 @@ exports = module.exports = function(app, passport) {
   app.all('/getting-started/*', sb_middle, onboarding );
   // app.param('landing', 'home');
   app.get('/landing/:landing', sb_middle, onboarding.render_landing);
-  app.get('/getting-started/starting', onboarding.starting, onboarding.render_landing);
+  app.get('/getting-started[/]?(starting)?', function (req, res) {
+    res.redirect('/getting-started/starting/home');
+  });
   app.get('/getting-started/starting/:landing', onboarding.starting, onboarding.render_landing);
   app.get('/getting-started/register', onboarding.register, signup.init);
   app.get('/getting-started/register/:tier', onboarding.register, signup.init);

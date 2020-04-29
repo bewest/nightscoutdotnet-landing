@@ -215,6 +215,11 @@ exports = module.exports = function(app, passport) {
     , billing.renderPhase
   ) ;
 
+  app.get('/account/subscription/', sb_middle, function (req, res, next) {
+    res.locals.servicebotSettings.type = 'portal';
+    res.render('account/subscription' );
+  });
+
   app.get('/new-account/:page', sb_middle, function (req, res, next) {
     res.locals.email = req.user.email;
     res.render('new-account/' + req.params.page || 'index');

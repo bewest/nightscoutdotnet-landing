@@ -83,7 +83,7 @@ exports = module.exports = function(app, passport) {
   app.get('/getting-started/register', onboarding.register, signup.init);
   app.get('/getting-started/register/:tier', onboarding.register, signup.init);
   app.get('/getting-started/checkout', onboarding.checkout);
-  app.get('/getting-started/activate', sites.create);
+  app.post('/getting-started/activate', onboarding.activate, sites.create);
 
   //sign up
   app.get('/signup/', signup.init);

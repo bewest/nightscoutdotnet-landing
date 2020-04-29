@@ -17,8 +17,6 @@ function ensureAdmin(req, res, next) {
 }
 
 function ensureAccount(req, res, next) {
-  console.log('ensureAccount cookie', req.cookies);
-  console.log('ensureAccount session', req.session);
   if (req.user.canPlayRoleOf('account')) {
     if (req.app.config.requireAccountVerification) {
       if (req.user.roles.account.isVerified !== 'yes' && !/^\/account\/verification\//.test(req.url)) {
@@ -77,7 +75,7 @@ exports = module.exports = function(app, passport) {
 
   app.all('/getting-started/*', sb_middle, onboarding );
   // app.param('landing', 'home');
-  app.get('/landing/:landing', onboarding.render_landing);
+  app.get('/landing/:landing', sb_middle, onboarding.render_landing);
   app.get('/getting-started/starting', onboarding.starting, onboarding.render_landing);
   app.get('/getting-started/starting/:landing', onboarding.starting, onboarding.render_landing);
   app.get('/getting-started/register', onboarding.register, signup.init);
@@ -191,6 +189,8 @@ exports = module.exports = function(app, passport) {
   //account
   app.all('/account*', ensureAuthenticated);
   app.all('/account*', ensureAccount);
+  var t1dpal = require('./lib/t1dpal/')(app, passport);
+  app.all('/account*', t1dpal);
   app.get('/account/', require('./views/account/index').init);
 
   //account > verification

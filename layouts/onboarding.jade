@@ -21,21 +21,7 @@ html
           ul.nav.navbar-nav
             li: a(href='/') Home
             li: a(href='/about/') About
-            if user && user.username
-              li: a(href='/account') My Account
-            else
-              li: a(href='/getting-started/home') Get started
-            //- li: a(href='/contact/') Contact
-
-          ul.nav.navbar-nav.navbar-right
-            if user && user.username
-              li: a(href='#{user.defaultReturnUrl}')
-                i.fa.fa-user
-                |  #{user.username}
-            else
-              li: a(href='/login/')
-                i.fa.fa-user
-                |  Sign In
+            li: a(href='/getting-started/home') Get started
 
     div.page
       div.container
@@ -58,3 +44,4 @@ html
     script(src='/layouts/core.min.js?#{cacheBreaker}')
 
     block feet
+

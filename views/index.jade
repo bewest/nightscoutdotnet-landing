@@ -1,7 +1,7 @@
 extends ../layouts/default
 
 block head
-  title Nightscout.Net Hosting 
+  title T1Pal
 
 block neck
   link(rel='stylesheet', href='/views/index.min.css?#{cacheBreaker}')
@@ -10,9 +10,9 @@ block body
   div.jumbotron
     h1 #{projectName} with Nightscout
     p.lead
-      | Nightscout.net is a completely turnkey solution for individuals looking to run the nightscout remote monitoring system.
+      | T1Pal is a completely turnkey solution for individuals looking to run the nightscout remote monitoring system.
       div
-        a.btn.btn-info.btn-lg(href='/signup/') Create an Account
+        a.btn.btn-info.btn-lg(href='/getting-started/home') Get started
         |  or&nbsp;
         a.btn.btn-primary.btn-lg(href='/login/') Login
       div.clearfix
@@ -20,18 +20,10 @@ block body
     div.col-sm-4
       div.panel.panel-default
         div.panel-body
-          h3 About Nightscout.net
-          p Nightscout.net is a free solution provided by the Nightscout Foundation for individual users. Learn more about the Foundation here.
-          a.btn.btn-default.btn-block(href='http://www.nightscoutfoundation.org/') The Nightscout Foundation
+          h3 About T1DPal
     div.col-sm-4
       div.panel.panel-default
         div.panel-body
           h3 Sign Up
-          p Sign up to use the Nightscout.net service here. Please remember that this service is in a testing phase.
+          p Please remember that this service is in a testing phase.
           a.btn.btn-default.btn-block(href='/signup/') Help the Testing
-    div.col-sm-4
-      div.panel.panel-default
-        div.panel-body
-          h3 Support This Project
-          p This project is a direct effort of the Nightscout Foundation, a 501(c)3 company. Your support keeps it going!
-          a.btn.btn-default.btn-block(href='http://www.nightscoutfoundation.org/donate') Support Nightscout.net

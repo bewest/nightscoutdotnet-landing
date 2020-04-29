@@ -69,8 +69,24 @@ exports = module.exports = function(app, passport) {
   app.get('/contact/', require('./views/contact/index').init);
   app.post('/contact/', require('./views/contact/index').sendMessage);
 
+  // onboarding flow
+  var onboarding = require('./lib/onboarding')(app, passport);
+  var signup  = require('./views/signup/index');
+  var sb_middle = require('./lib/servicebot')(app, passport);
+  var sites = require('./views/account/sites/index');
+
+  app.all('/getting-started/*', sb_middle, onboarding );
+  // app.param('landing', 'home');
+  app.get('/landing/:landing', onboarding.render_landing);
+  app.get('/getting-started/starting', onboarding.starting, onboarding.render_landing);
+  app.get('/getting-started/starting/:landing', onboarding.starting, onboarding.render_landing);
+  app.get('/getting-started/register', onboarding.register, signup.init);
+  app.get('/getting-started/register/:tier', onboarding.register, signup.init);
+  app.get('/getting-started/checkout', onboarding.checkout);
+  app.get('/getting-started/activate', sites.create);
+
   //sign up
-  app.get('/signup/', require('./views/signup/index').init);
+  app.get('/signup/', signup.init);
   app.post('/signup/', require('./views/signup/index').signup);
 
   //social sign up
@@ -197,7 +213,6 @@ exports = module.exports = function(app, passport) {
     , billing.renderPhase
   ) ;
 
-  var sb_middle = require('./lib/servicebot')(app, passport);
   app.get('/new-account/:page', sb_middle, function (req, res, next) {
     res.locals.email = req.user.email;
     res.render('new-account/' + req.params.page || 'index');
@@ -220,7 +235,7 @@ exports = module.exports = function(app, passport) {
 
 
   // account > sites
-  var sites = require('./views/account/sites/index');
+
   app.get('/account/sites/', sites.jsonIfXHR, sites.init);
   app.post('/account/sites/', sites.create);
   app.delete('/account/sites/:name', sites.remove);

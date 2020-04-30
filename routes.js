@@ -192,7 +192,6 @@ exports = module.exports = function(app, passport) {
   app.all('/account*', ensureAuthenticated);
   app.all('/account*', ensureAccount);
   var t1dpal = require('./lib/t1dpal/')(app, passport);
-  // app.all('/account*', t1dpal);
   app.get('/account/', require('./views/account/index').init);
 
   //account > verification
@@ -243,6 +242,7 @@ exports = module.exports = function(app, passport) {
 
   // account > sites
 
+  app.all('/account/sites*', t1dpal);
   app.get('/account/sites/', sites.jsonIfXHR, sites.init);
   app.post('/account/sites/', sites.create);
   app.delete('/account/sites/:name', sites.remove);

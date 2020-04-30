@@ -194,7 +194,7 @@
     var root = $('#site-list');
     // $.get('/account/sites/list.json',
     root.on('loaded', function (ev, body, status, xhr) {
-      var template = cloner($('TBODY.template-site TR').clone(true));
+      var template = cloner($('.template-site .site-row').clone(true));
       body.map(function (site) {
         var elem = template(site);
         root.append(elem);

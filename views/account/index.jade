@@ -1,13 +1,20 @@
 extends ../../layouts/account
 
 block head
-  title Account Area
+  title Account Home
+  style(type='text/css')
+    :css
+      .template-site {
+        display: none;
+      }
+
 
 block neck
   link(rel='stylesheet', href='/views/account/index.min.css?#{cacheBreaker}')
 
 block feet
   script(src='/views/account/index.min.js?#{cacheBreaker}')
+  script(src='/views/account/sites/index.js?#{cacheBreaker}')
 
 block body
   div.row
@@ -15,13 +22,31 @@ block body
       div.page-header
         h1 My Account
       div.container
+        div.row.sites.list#site-list(data-ajax-target='/account/sites/list.json')
+        div.row.sites.skeleton.template-site
+          div.site-row
+            h3
+              a.v.view
+                i.fa.fa-link
+                | 
+                | Visit&nbsp;
+                span.v.name
+                  | Loading
+                | 
+                | Nightscout
+            :markdown
+              Visit my Nightscout.
+            span Status 
+              img.v.status
+
         div.row
           h3
             a(href="/account/sites/my")
-              i.fa.fa-user
-              | &nbsp;Nightscout
+              i.fa.fa-gears
+              | &nbsp;Configure Nightscout
           :markdown
-            Manage my Nightscout.
+            Share Nightscout, manage plugins, customization and
+            personalizing my features.
 
         div.row
           h3
@@ -34,7 +59,7 @@ block body
         div.row
           h3
             a(href="/account/subscription")
-              i.fa.fa-user
+              i.fa.fa-credit-card
               | &nbsp;Subscription
           :markdown
             Manage payment methods, view upcoming and past transactions.

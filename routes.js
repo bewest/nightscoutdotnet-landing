@@ -192,7 +192,7 @@ exports = module.exports = function(app, passport) {
   app.all('/account*', ensureAuthenticated);
   app.all('/account*', ensureAccount);
   var t1dpal = require('./lib/t1dpal/')(app, passport);
-  app.all('/account*', t1dpal);
+  // app.all('/account*', t1dpal);
   app.get('/account/', require('./views/account/index').init);
 
   //account > verification

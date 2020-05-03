@@ -323,7 +323,8 @@ function fetches_sites (req, res, next) {
     next( );
   }
 }
-app.all('/*', fetches_sites, do_uploader_rewrite, do_nginx_rewrite, unprotected);
+// app.all('/*', fetches_sites, do_uploader_rewrite, do_nginx_rewrite, unprotected);
+app.all('/*', unprotected);
 // app.use(maybeProxy);
 
 //custom (friendly) error handler
@@ -337,5 +338,6 @@ app.utility.workflow = require('./util/workflow');
 
 //listen up
 app.server.listen(app.config.port, function(){
+  console.log('listening', this.address( ));
   //and... we're live
 });

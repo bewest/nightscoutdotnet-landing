@@ -29,6 +29,7 @@ function ensureAccount(req, res, next) {
 }
 
 const request = require('request');
+const express = require('express');
 // Set up proxy module.
 var proxy = require('./proxy');
 
@@ -207,6 +208,13 @@ exports = module.exports = function(app, passport) {
   app.put('/account/settings/identity/', require('./views/account/settings/index').identity);
   app.put('/account/settings/password/', require('./views/account/settings/index').password);
 
+  app.get('/account/subscription/', sb_middle, function (req, res, next) {
+    res.locals.servicebotSettings.type = 'portal';
+    res.render('account/subscription' );
+  });
+
+  /*
+
   // billing
   var billing = require('./views/account/billing/index');
   app.get('/account/billing/'
@@ -216,10 +224,6 @@ exports = module.exports = function(app, passport) {
     , billing.renderPhase
   ) ;
 
-  app.get('/account/subscription/', sb_middle, function (req, res, next) {
-    res.locals.servicebotSettings.type = 'portal';
-    res.render('account/subscription' );
-  });
 
   app.get('/new-account/:page', sb_middle, function (req, res, next) {
     res.locals.email = req.user.email;
@@ -240,6 +244,7 @@ exports = module.exports = function(app, passport) {
     , billing.create_subscription
     , billing.fmt_subscription
   ) ;
+  */
 
 
   // account > sites

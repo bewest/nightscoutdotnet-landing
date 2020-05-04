@@ -24,8 +24,10 @@ exports = module.exports = function(app, passport) {
           if (err) return done(err);
           app.db.models.User.findOne({"roles.account": result.id})
             .populate('roles.admin')
-            .populate('roles.account')
-            .populate('roles.account.sites')
+            .populate({
+              path: 'roles.account',
+              populate: {  path: 'sites' }
+            })
             .exec(function(err, user) {
               console.log('passport hydrating user', api, err, user);
               done(err, user);
@@ -161,7 +163,13 @@ exports = module.exports = function(app, passport) {
   });
 
   passport.deserializeUser(function(id, done) {
-    app.db.models.User.findOne({ _id: id }).populate('roles.admin').populate('roles.account').exec(function(err, user) {
+    app.db.models.User.findOne({ _id: id })
+      .populate('roles.admin')
+      .populate({
+        path: 'roles.account',
+        populate: {  path: 'sites' }
+      })
+      .exec(function(err, user) {
       if (user && user.roles && user.roles.admin) {
         user.roles.admin.populate("groups", function(err, admin) {
           done(err, user);

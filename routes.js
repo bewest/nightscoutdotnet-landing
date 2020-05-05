@@ -258,6 +258,7 @@ exports = module.exports = function(app, passport) {
   app.get('/account/sites/:name/runtime', sites.findSite, sites.getRunTime, sites.fmtRunTime);
   app.post('/account/sites/:name/runtime', sites.findSite, sites.getRunTime, sites.suggestRunTime, sites.setRunTime, sites.clean_proc_runtime, sites.fmtRunTime);
   app.get('/account/sites/:name/runtime', sites.findSite, sites.getRunTime, sites.fmtRunTime);
+  app.get('/account/sites/:name/loading', sites.findSite, sites.getRunTime, sites.loading);
   app.get('/account/sites/:name/runtime/:field', sites.findSite, sites.getRunTime, sites.getRunTimeOption, sites.fmtRunTime);
   app.post('/account/sites/:name/runtime/:field', sites.findSite, sites.getRunTime,  sites.setRunTimeOption, sites.clean_proc_runtime, sites.fmtRunTime);
   app.delete('/account/sites/:name/runtime/:field', sites.findSite, sites.getRunTime, sites.delRunTimeOption, sites.clean_proc_runtime, sites.fmtRunTime);
@@ -285,20 +286,24 @@ exports = module.exports = function(app, passport) {
     });
   });
   app.all('/hosted/site*', passport.authenticate('t1d-strategy',
-    { session: false
+    { session: true
     // , flashFailure: "Wow"
     , failureRedirect: '/account'
     }));
+  app.get('/hosted/site/:name/loading', sites.findSite, sites.getRunTime, sites.loading);
+  // app.get('/hosted/site/:name/runtime', sites.findSite, sites.getRunTime, sites.fmtRunTime);
   app.get('/hosted/site/', sites.jsonIfXHR, sites.init);
   app.post('/hosted/site/', sites.create);
   app.delete('/hosted/site/:name', sites.remove);
   app.get('/hosted/site/list.json', sites.list);
 
+  /*
   // account > groups
   var groups = require('./views/account/groups/index');
   app.all('/account/groups*', groups.ensureFacebook);
   app.get('/account/groups/', groups.init);
   app.get('/account/groups/api/*', groups.groups);
+  */
 
   //account > settings > social
   app.get('/account/settings/twitter/', passport.authenticate('twitter', { callbackURL: oauth_base + '/account/settings/twitter/callback/' }));

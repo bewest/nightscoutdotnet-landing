@@ -50,6 +50,10 @@ block body
               i.fa.fa-users
               = ' Social'
           //- li(role="presentation")
+            a(role="tab", data-toggle="tab", href="#Authorization")
+              i.fa.fa-key
+              = ' Auth'
+          //- li(role="presentation")
             a(role="tab", data-toggle="tab", href="#Uploaders")
               i.fa.fa-cloud-upload
               = ' Uploaders'
@@ -372,6 +376,8 @@ block body
                     i.fa.fa-trash-o
 
 
+          div.tab-pane#Authorization(role="tabpanel")
+            iframe(width=800, height=600, src="//#{site.domain}/embedded/")
           div.tab-pane#Views(role="tabpanel")
 
             h4

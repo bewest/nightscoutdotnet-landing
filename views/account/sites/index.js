@@ -473,3 +473,19 @@ exports.create = function(req, res, next) {
   });
 
 };
+
+exports.loading = function loading_page (req, res, next) {
+    var bases = get_bases(req);
+    var sites = req.user.roles.account.sites.map(sitePrefixes(bases));;
+    var shasum = crypto.createHash('sha1');
+    shasum.update(req.site.proc.custom_env.API_SECRET);
+    var apisecrethash = shasum.digest('hex');
+    req.site.apisecrethash = apisecrethash;
+    res.locals.sites = sites;
+    res.locals.site = req.site;
+    res.locals.bases = bases;
+    res.locals.params = req.params;
+    res.locals.session = req.t1dpal;
+    res.render('account/sites/loading');
+};
+

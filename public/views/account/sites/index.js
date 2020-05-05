@@ -66,6 +66,9 @@
     clone.find('A.http-upload').attr('href', item.upload);
     clone.find('A.http-xdrip-upload').attr('href', item.xdrip);
     clone.find('A.v.settings').attr('href', item.settings);
+    clone.find('IFRAME.v.embedded').attr('src', function (i) {
+      return base + $(this).attr('data-src');
+    });
     return clone;
   }
 

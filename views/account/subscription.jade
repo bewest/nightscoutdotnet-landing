@@ -1,0 +1,34 @@
+extends ../../layouts/account
+
+block head
+  title Account Subscription
+
+block neck
+  link(rel='stylesheet', href='/views/account/index.min.css?#{cacheBreaker}')
+
+block feet
+  script(src='/views/account/index.min.js?#{cacheBreaker}')
+
+block body
+  div.row
+    div.col-sm-6
+      div.page-header
+        h1 My Account Subscription
+      div.container
+        div.row
+          include ../servicebot
+
+
+    //- div.col-sm-6.special
+      div.page-header
+        h1 Login with Nightscout
+      div.row
+        h2 Manage Nightscout
+        h3 Users
+        h3 Groups
+        h3 Schedules
+      i.fa.fa-dashboard.super-awesome
+      //- img(src="//#{ username }-login.diabetes.watch/api/v1/status.svg")
+
+      //- h2
+      //-   a(href="//#{ username }-login.diabetes.watch/") #{ username } with Nightscout

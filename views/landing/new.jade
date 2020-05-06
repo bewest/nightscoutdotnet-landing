@@ -1,0 +1,23 @@
+extends ../../layouts/onboarding
+
+block head
+  title Nightscout.Net Hosting 
+
+block neck
+  link(rel='stylesheet', href='/views/index.min.css?#{cacheBreaker}')
+
+block feet
+  script.
+    $('#servicebot-subscription-portal').on('select_plan', function (event, data) {
+      console.log('chosen', data.tier.tierName, data);
+      window.location = '/getting-started/register/' + data.tier.tierName;
+    });
+block body
+  div.jumbotron
+    h1 #{projectName} secured and private Nightscout
+    p.lead
+      | Nightscout.net is a completely turnkey solution for individuals looking to run the nightscout remote monitoring system.
+      div.clearfix
+  div.row
+    include ../servicebot
+

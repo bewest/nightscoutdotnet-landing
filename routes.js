@@ -68,6 +68,9 @@ exports = module.exports = function(app, passport) {
   app.get('/contact/', require('./views/contact/index').init);
   app.post('/contact/', require('./views/contact/index').sendMessage);
 
+  var webhooks = require('./lib/webhooks')(app, passport);
+  app.post('/webhooks/stripe/*', webhooks);
+
   // onboarding flow
   var onboarding = require('./lib/onboarding')(app, passport);
   var signup  = require('./views/signup/index');

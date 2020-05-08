@@ -330,18 +330,22 @@ exports.remove = function(req, res, next) {
   var name = req.params.name;
   var account_id = req.user.roles.account._id;
   // var site = req.sites.filter(function (f) { return f.name == name && req.user.roles.account._id == f.account.id; });
+  /*
   var site = req.sites.filter(function (f) { 
     return (f.name == name && f.account.id.toString( ) == account_id.toString( ));
   }).pop( );
+  */
+  var site = req.site;
   console.log("REMOVE XX", site);
   if (site.name != name) {
     throw "bad";
   }
 
-  // var api = req.app.config.proxy.api;
+  // var api = req.app.config.proxy.provision;
   var account_id = req.user.roles.account._id;
-  var api = req.app.config.proxy.provision;
-  var delete_url = api + '/accounts/' + account_id + '/sites/' + site.internal_name;
+  var api = req.app.config.proxy.backplane;
+  // var delete_url = api + '/accounts/' + account_id + '/sites/' + site.internal_name;
+  var delete_url = api + '/sites/' + site.key;
   // var url = api + '/accounts/' + account_id + '/sites/' + req.site.internal_name;
 
   var q = {
@@ -356,8 +360,7 @@ exports.remove = function(req, res, next) {
     console.log('removed from backends', result.statusCode, body);
     // req.user.roles.account.sites.pull(q);
     console.log('begin sites for account', req.user.roles.account.sites.length);
-    req.user.roles.account.sites = req.sites.filter(function (c) {
-      console.log('considering removing', c.name, name);
+    req.user.roles.account.sites = req.user.roles.account.sites.filter(function (c) {
       return c.name.toString( ) != name;
     });
     req.user.roles.account.update(req.user.roles.account, function (err, saved) {
@@ -427,6 +430,10 @@ exports.create = function(req, res, next) {
     // req.db.
     if (err) {
       return next(err);
+    }
+    if (!body.storage || !body.compute) {
+      res.redirect('/account/sites/');
+      return next("missing items");
     }
 
     var shasum = crypto.createHash('sha1');

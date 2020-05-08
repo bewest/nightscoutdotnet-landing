@@ -255,7 +255,7 @@ exports = module.exports = function(app, passport) {
 
   app.get('/account/sites/', sites.jsonIfXHR, sites.init);
   app.post('/account/sites/', sites.create);
-  app.delete('/account/sites/:name', sites.remove);
+  app.delete('/account/sites/:name', sites.findSite, sites.remove);
   app.get('/account/sites/list.json', sites.list);
   app.get('/account/sites/:name', sites.examine);
   app.get('/account/sites/:name/views', sites.jsonIfXHR, sites.findSite, sites.listView);

@@ -264,7 +264,7 @@ exports = module.exports = function(app, passport) {
   app.get('/account/sites/:name/runtime', sites.findSite, sites.getRunTime, sites.fmtRunTime);
   app.get('/account/sites/:name/loading', sites.findSite, sites.getRunTime, sites.loading);
   app.get('/account/sites/:name/dexcom/connect', sites.findSite, sites.getRunTime, sharebridge.suggest, sharebridge.json);
-  app.post('/account/sites/:name/dexcom/connect', sites.findSite, sites.getRunTime, sharebridge.suggest, sharebridge.verify, sharebridge.enable, sharebridge.json);
+  app.post('/account/sites/:name/dexcom/connect', sites.findSite, sites.getRunTime, sharebridge.suggest, sharebridge.verify, sharebridge.get_original_env,sharebridge.enable, sharebridge.json);
 
   app.get('/account/sites/:name/runtime/:field', sites.findSite, sites.getRunTime, sites.getRunTimeOption, sites.fmtRunTime);
   app.post('/account/sites/:name/runtime/:field', sites.findSite, sites.getRunTime,  sites.setRunTimeOption, sites.clean_proc_runtime, sites.fmtRunTime);

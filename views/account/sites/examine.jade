@@ -89,6 +89,11 @@ block body
                     | #{bases.viewer}
               //- div.panel-body(data-ajax-target='//#{site.domain}/api/v1/status.js')
               div.panel-body
+                div
+                  
+                  tt Api Secret&nbsp;
+                    input.e.env.API_SECRET(readonly=true, disabled=true)
+
                 span.v.status
                 img.v.status
                 tt
@@ -377,7 +382,6 @@ block body
                 tr
                   td(colspan="3")
 
-
             div.panel.panel-warning
               div.panel-body
                 div
@@ -394,22 +398,22 @@ block body
               Sign into Dexcom to fetch glucose data.
             form#DexcomLogin(data-action='/account/sites/#{site.name}/dexcom/connect')
               p Nightscout uses this information to get cgm data.
-              .panel.panel-heading
-                label.btn.btn-default
-                  = ' Enable Dexcom '
-                  input.enabler.enable_bridge.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-onx="enable", data-offx="verify", value="bridge")
-              div.form-group
-                label Dexcom Username:
-                input.dexcom.username.form-control(type='text', name='dexcom_account_name')
-                span.help-block 
-              div.form-group
-                label Dexcom Password:
-                input.dexcom.password.form-control(type='password', name='dexcom_account_password')
-                span.help-block
-              div.form-actions
-                button.btn.btn-primary.btn-login(type='button') Test connection
-                |&nbsp;
-                button.btn.btn-disabled.btn-login(type='button') Save
+              .panel
+                div.form-group.bridge-enablers
+                  label.btn.btn-default
+                    = ' Enable Dexcom '
+                    input.enabler.enable_bridge.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-onx="enable", data-offx="verify", value="bridge")
+                div.form-group
+                  label Dexcom Username:
+                  input.nochanges.dexcom.username.form-control(type='text', name='dexcom_account_name')
+                  span.help-block 
+                div.form-group
+                  label Dexcom Password:
+                  input.nochanges.dexcom.password.form-control(type='password', name='dexcom_account_password')
+                  span.help-block
+                div.form-actions
+                  button.btn.btn-primary.btn-login(type='submit') Save connection
+                  |&nbsp;
 
           div.tab-pane#Authorization(role="tabpanel")
             iframe(width=800, height=600, src="//#{site.domain}/embedded/")

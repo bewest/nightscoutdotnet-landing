@@ -6,6 +6,11 @@ $(document).ready(function ( ) {
     var form = $(ev.delegateTarget);
     form.find('.dexcom.username').val(data.creds.accountName);
     form.find('.dexcom.password').val(data.creds.password);
+    console.log('render', data);
+    form.find('.bridge-enablers').toggleClass('hidden', !(data.ok || data.enabled));
+    if (data.creds.accountName || data.creds.password) {
+      form.find('.bridge-enablers').removeClass('hidden');
+    }
     // form.find( ).value( );
   }
 
@@ -21,6 +26,7 @@ $(document).ready(function ( ) {
 
   function changed (ev) {
     var form = $(ev.delegateTarget);
+    ev.preventDefault( );
     var url = form.data('action');
     var data = form.serialize( );
     console.log('form', url, data);
@@ -28,13 +34,14 @@ $(document).ready(function ( ) {
       console.log('saved', url, data, arguments);
       // form.trigger('data', [body.attempt.settings]);
     });
+    return false;
   }
 
   console.log('bridging');
   $('#DexcomLogin').on('init', initialize);
   $('#DexcomLogin').on('data', render);
   // $('#DexcomLogin').on('change', changed);
-  $('#DexcomLogin').on('click', '.btn', changed);
+  $('#DexcomLogin').on('submit', changed);
   $('#DexcomLogin').trigger('init');
 });
 

@@ -130,12 +130,15 @@ exports.findSite = function (req, res, next) {
 var blacklistedENV = [null, 'HOSTEDPORTS', 'MONGO_COLLECTION', 'MONGO_DEVICESTATUS_COLLECTION', 'MONGO_PROFILE_COLLECTION', 'MONGO_SETTINGS_COLLECTION', 'MONGO_TREATMENTS_COLLECTION', 'PATH', 'WEB_NAME', 'WORKER_DIR', 'WORKER_ENV', 'base', 'envfile', 'mongo', 'internal_name', 'PORT'  ];
 exports.getRunTime = function (req, res, next) {
   var account_id = req.user.roles.account._id;
-  var api = req.app.config.proxy.api;
-  var url = api + '/environs/' + req.site.internal_name;
+  var key = req.site.key;
+  var api = req.app.config.proxy.backplane;
+  var url = api + '/resource/' + key + '/compute';
+  // var api = req.app.config.proxy.api;
+  // var url = api + '/environs/' + req.site.internal_name;
   // var api = req.app.config.proxy.provision;
   // var url = api + '/accounts/' + account_id + '/sites/' + req.site.internal_name;
   request.get({ url: url, json: true }, function done (err, result, body) {
-    if (err) { return next(err); }
+    if (err || result.statusCode > 299) { return next(err); }
     var safe = { };
     var env = body.custom_env;
     for (var f in env) {
@@ -330,18 +333,22 @@ exports.remove = function(req, res, next) {
   var name = req.params.name;
   var account_id = req.user.roles.account._id;
   // var site = req.sites.filter(function (f) { return f.name == name && req.user.roles.account._id == f.account.id; });
+  /*
   var site = req.sites.filter(function (f) { 
     return (f.name == name && f.account.id.toString( ) == account_id.toString( ));
   }).pop( );
+  */
+  var site = req.site;
   console.log("REMOVE XX", site);
   if (site.name != name) {
     throw "bad";
   }
 
-  // var api = req.app.config.proxy.api;
+  // var api = req.app.config.proxy.provision;
   var account_id = req.user.roles.account._id;
-  var api = req.app.config.proxy.provision;
-  var delete_url = api + '/accounts/' + account_id + '/sites/' + site.internal_name;
+  var api = req.app.config.proxy.backplane;
+  // var delete_url = api + '/accounts/' + account_id + '/sites/' + site.internal_name;
+  var delete_url = api + '/sites/' + site.key;
   // var url = api + '/accounts/' + account_id + '/sites/' + req.site.internal_name;
 
   var q = {
@@ -356,8 +363,7 @@ exports.remove = function(req, res, next) {
     console.log('removed from backends', result.statusCode, body);
     // req.user.roles.account.sites.pull(q);
     console.log('begin sites for account', req.user.roles.account.sites.length);
-    req.user.roles.account.sites = req.sites.filter(function (c) {
-      console.log('considering removing', c.name, name);
+    req.user.roles.account.sites = req.user.roles.account.sites.filter(function (c) {
       return c.name.toString( ) != name;
     });
     req.user.roles.account.update(req.user.roles.account, function (err, saved) {
@@ -427,6 +433,10 @@ exports.create = function(req, res, next) {
     // req.db.
     if (err) {
       return next(err);
+    }
+    if (!body.storage || !body.compute) {
+      res.redirect('/account/sites/');
+      return next("missing items");
     }
 
     var shasum = crypto.createHash('sha1');

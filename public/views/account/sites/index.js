@@ -242,7 +242,7 @@
         console.log('updated', overview);
       }
       overview.off('change switchChange.bootstrapSwitch')
-        .on('change switchChange.bootstrapSwitch', '.panel :input', data,
+        .on('change switchChange.bootstrapSwitch', '.panel :input:not(.nochanges)', data,
       function (ev, state) {
         console.log("changing", ev, ev.target);
         var target = $(ev.target);

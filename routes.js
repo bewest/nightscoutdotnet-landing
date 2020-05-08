@@ -255,7 +255,7 @@ exports = module.exports = function(app, passport) {
 
   app.get('/account/sites/', sites.jsonIfXHR, sites.init);
   app.post('/account/sites/', sites.create);
-  app.delete('/account/sites/:name', sites.remove);
+  app.delete('/account/sites/:name', sites.findSite, sites.remove);
   app.get('/account/sites/list.json', sites.list);
   app.get('/account/sites/:name', sites.examine);
   app.get('/account/sites/:name/views', sites.jsonIfXHR, sites.findSite, sites.listView);
@@ -264,7 +264,7 @@ exports = module.exports = function(app, passport) {
   app.get('/account/sites/:name/runtime', sites.findSite, sites.getRunTime, sites.fmtRunTime);
   app.get('/account/sites/:name/loading', sites.findSite, sites.getRunTime, sites.loading);
   app.get('/account/sites/:name/dexcom/connect', sites.findSite, sites.getRunTime, sharebridge.suggest, sharebridge.json);
-  app.post('/account/sites/:name/dexcom/connect', sites.findSite, sites.getRunTime, sharebridge.suggest, sharebridge.verify, sharebridge.enable, sharebridge.json);
+  app.post('/account/sites/:name/dexcom/connect', sites.findSite, sites.getRunTime, sharebridge.suggest, sharebridge.verify, sharebridge.get_original_env,sharebridge.enable, sharebridge.json);
 
   app.get('/account/sites/:name/runtime/:field', sites.findSite, sites.getRunTime, sites.getRunTimeOption, sites.fmtRunTime);
   app.post('/account/sites/:name/runtime/:field', sites.findSite, sites.getRunTime,  sites.setRunTimeOption, sites.clean_proc_runtime, sites.fmtRunTime);

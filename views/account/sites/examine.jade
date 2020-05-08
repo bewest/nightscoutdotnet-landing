@@ -29,10 +29,12 @@ block feet
   //- script(src='/vendor/bootstrap-toggle/js/bootstrap-toggle.min.js')
   script(src='/vendor/bootstrap-switch/js/bootstrap-switch.min.js')
   script(src='/views/account/sites/index.js?#{cacheBreaker}')
+  script(src='/views/account/sites/bridge-plugin.js?#{cacheBreaker}')
 
 block body
   div.row
-    div.col-sm-12
+    br
+    //- div.col-sm-12
       div.page-header
         h1 #{name}
 
@@ -49,6 +51,10 @@ block body
             a(role="tab", data-toggle="tab", href="#Views")
               i.fa.fa-users
               = ' Social'
+          li(role="presentation")
+            a(role="tab", data-toggle="tab", href="#DataIngress")
+              i.fa.fa-upload
+              = ' Data'
           //- li(role="presentation")
             a(role="tab", data-toggle="tab", href="#Authorization")
               i.fa.fa-key
@@ -63,12 +69,15 @@ block body
               = ' Pebble'
 
     div.col-xs-9
+        //- div.page-header
         .tab-content
 
           div.tab-pane.active#Overview(role="tabpanel", data-ajax-target='./#{name}/runtime')
             h4
-              i.fa.fa-home
+              i.fa.fa-home&nbsp;
+              | #{name}
               = ' Overview'
+
             :markdown
               Quick summary of site status, and some handy links.
             div.panel.panel-default
@@ -375,6 +384,32 @@ block body
                   button.delete-site.btn.btn-danger.btn-sm
                     i.fa.fa-trash-o
 
+
+          div.tab-pane#DataIngress(role="tabpanel")
+            h4
+              i.fa.fa-upload
+              = ' Connections'
+            :markdown
+              Manage data collection and storage.
+              Sign into Dexcom to fetch glucose data.
+            form#DexcomLogin(data-action='/account/sites/#{site.name}/dexcom/connect')
+              p Nightscout uses this information to get cgm data.
+              .panel.panel-heading
+                label.btn.btn-default
+                  = ' Enable Dexcom '
+                  input.enabler.enable_bridge.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-onx="enable", data-offx="verify", value="bridge")
+              div.form-group
+                label Dexcom Username:
+                input.dexcom.username.form-control(type='text', name='dexcom_account_name')
+                span.help-block 
+              div.form-group
+                label Dexcom Password:
+                input.dexcom.password.form-control(type='password', name='dexcom_account_password')
+                span.help-block
+              div.form-actions
+                button.btn.btn-primary.btn-login(type='button') Test connection
+                |&nbsp;
+                button.btn.btn-disabled.btn-login(type='button') Save
 
           div.tab-pane#Authorization(role="tabpanel")
             iframe(width=800, height=600, src="//#{site.domain}/embedded/")

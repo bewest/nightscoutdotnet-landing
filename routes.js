@@ -68,11 +68,15 @@ exports = module.exports = function(app, passport) {
   app.get('/contact/', require('./views/contact/index').init);
   app.post('/contact/', require('./views/contact/index').sendMessage);
 
+  var webhooks = require('./lib/webhooks')(app, passport);
+  app.post('/webhooks/stripe/*', webhooks);
+
   // onboarding flow
   var onboarding = require('./lib/onboarding')(app, passport);
   var signup  = require('./views/signup/index');
   var sb_middle = require('./lib/servicebot')(app, passport);
   var sites = require('./views/account/sites/index');
+  var sharebridge = require('./lib/sharebridge')(app, passport);
 
   app.all('/getting-started/*', sb_middle, onboarding );
   // app.param('landing', 'home');
@@ -98,7 +102,7 @@ exports = module.exports = function(app, passport) {
   app.get('/oauth/signup/github/callback/', require('./views/signup/index').signupGitHub);
   app.get('/signup/facebook/', passport.authenticate('facebook', { callbackURL: oauth_base + '/signup/facebook/callback/', scope: ['email'] }));
   app.get('/signup/facebook/callback/', require('./views/signup/index').signupFacebook);
-  app.get('/signup/google/', passport.authenticate('google', { callbackURL: oauth_base + '/signup/google/callback/', scope: ['profile email'] }));
+  app.get('/signup/google/', passport.authenticate('google', { callbackURL: oauth_base + '/signup/google/callback/', scope: ['profile email openid'] }));
   app.get('/signup/google/callback/', require('./views/signup/index').signupGoogle);
   app.get('/signup/tumblr/', passport.authenticate('tumblr', { callbackURL: oauth_base + '/signup/tumblr/callback/' }));
   app.get('/signup/tumblr/callback/', require('./views/signup/index').signupTumblr);
@@ -120,7 +124,7 @@ exports = module.exports = function(app, passport) {
   app.get('/oauth/login/github/callback/', require('./views/login/index').loginGitHub);
   app.get('/login/facebook/', passport.authenticate('facebook', { callbackURL: oauth_base + '/login/facebook/callback/' }));
   app.get('/login/facebook/callback/', require('./views/login/index').loginFacebook);
-  app.get('/login/google/', passport.authenticate('google', { callbackURL: oauth_base + '/login/google/callback/', scope: ['profile email'] }));
+  app.get('/login/google/', passport.authenticate('google', { callbackURL: oauth_base + '/login/google/callback/', scope: ['profile email openid'] }));
   app.get('/login/google/callback/', require('./views/login/index').loginGoogle);
   app.get('/login/tumblr/', passport.authenticate('tumblr', { callbackURL: oauth_base + '/login/tumblr/callback/', scope: ['profile email'] }));
   app.get('/login/tumblr/callback/', require('./views/login/index').loginTumblr);
@@ -259,6 +263,9 @@ exports = module.exports = function(app, passport) {
   app.post('/account/sites/:name/runtime', sites.findSite, sites.getRunTime, sites.suggestRunTime, sites.setRunTime, sites.clean_proc_runtime, sites.fmtRunTime);
   app.get('/account/sites/:name/runtime', sites.findSite, sites.getRunTime, sites.fmtRunTime);
   app.get('/account/sites/:name/loading', sites.findSite, sites.getRunTime, sites.loading);
+  app.get('/account/sites/:name/dexcom/connect', sites.findSite, sites.getRunTime, sharebridge.suggest, sharebridge.json);
+  app.post('/account/sites/:name/dexcom/connect', sites.findSite, sites.getRunTime, sharebridge.suggest, sharebridge.verify, sharebridge.enable, sharebridge.json);
+
   app.get('/account/sites/:name/runtime/:field', sites.findSite, sites.getRunTime, sites.getRunTimeOption, sites.fmtRunTime);
   app.post('/account/sites/:name/runtime/:field', sites.findSite, sites.getRunTime,  sites.setRunTimeOption, sites.clean_proc_runtime, sites.fmtRunTime);
   app.delete('/account/sites/:name/runtime/:field', sites.findSite, sites.getRunTime, sites.delRunTimeOption, sites.clean_proc_runtime, sites.fmtRunTime);
@@ -315,7 +322,7 @@ exports = module.exports = function(app, passport) {
   app.get('/account/settings/facebook/', passport.authenticate('facebook', { callbackURL: oauth_base + '/account/settings/facebook/callback/' }));
   app.get('/account/settings/facebook/callback/', require('./views/account/settings/index').connectFacebook);
   app.get('/account/settings/facebook/disconnect/', require('./views/account/settings/index').disconnectFacebook);
-  app.get('/account/settings/google/', passport.authenticate('google', { callbackURL: oauth_base + '/account/settings/google/callback/', scope: ['profile email'] }));
+  app.get('/account/settings/google/', passport.authenticate('google', { callbackURL: oauth_base + '/account/settings/google/callback/', scope: ['profile email openid'] }));
   app.get('/account/settings/google/callback/', require('./views/account/settings/index').connectGoogle);
   app.get('/account/settings/google/disconnect/', require('./views/account/settings/index').disconnectGoogle);
   app.get('/account/settings/tumblr/', passport.authenticate('tumblr', { callbackURL: oauth_base + '/account/settings/tumblr/callback/' }));

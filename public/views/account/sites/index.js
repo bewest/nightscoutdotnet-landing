@@ -160,7 +160,7 @@
     var enabled = [null].concat((env.ENABLE || 'delta direction ar2 errorcodes').split(' '));
     var config = { };
     var known = [
-        'careportal' , 'rawbg' , 'iob' , 'cob'
+        'careportal' , 'rawbg' , 'iob' , 'cob', 'bridge'
       , 'bwp' , 'cage' , 'delta'
       , 'direction' , 'upbat' , 'ar2'
       , 'simplealarms' , 'errorcodes' , 'treatmentnotify'
@@ -230,7 +230,7 @@
 
     });
 
-    var overview = $('#Overview');
+    var overview = $('#Overview, #DataIngress');
     overview.on('loaded', function (ev, data) {
       var api = overview.data('ajax-target');
       var config = env_config(data.custom_env);
@@ -271,9 +271,11 @@
         if (target.is('.enabler')) {
           name = 'ENABLE';
           payload = { };
-          var enabled = ['',  ];
+          var enabled = [''  ];
           overview.find('.enabler:checked').each(function ( ) {
-            enabled.push($(this).val( ));
+            var val = $(this).val( );
+            if (!target.is('.enable_' + val))
+              enabled.push($(this).val( ));
           });
           payload[name] = ' ' + enabled.join(' ');
         }

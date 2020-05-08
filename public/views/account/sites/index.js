@@ -274,7 +274,7 @@
           var enabled = [''  ];
           overview.find('.enabler:checked').each(function ( ) {
             var val = $(this).val( );
-            if (!target.is('.enable_' + val))
+            if (!target.is('.enable_' + val) || target.is($(this)))
               enabled.push($(this).val( ));
           });
           payload[name] = ' ' + enabled.join(' ');

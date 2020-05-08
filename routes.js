@@ -76,6 +76,7 @@ exports = module.exports = function(app, passport) {
   var signup  = require('./views/signup/index');
   var sb_middle = require('./lib/servicebot')(app, passport);
   var sites = require('./views/account/sites/index');
+  var sharebridge = require('./lib/sharebridge')(app, passport);
 
   app.all('/getting-started/*', sb_middle, onboarding );
   // app.param('landing', 'home');
@@ -262,6 +263,9 @@ exports = module.exports = function(app, passport) {
   app.post('/account/sites/:name/runtime', sites.findSite, sites.getRunTime, sites.suggestRunTime, sites.setRunTime, sites.clean_proc_runtime, sites.fmtRunTime);
   app.get('/account/sites/:name/runtime', sites.findSite, sites.getRunTime, sites.fmtRunTime);
   app.get('/account/sites/:name/loading', sites.findSite, sites.getRunTime, sites.loading);
+  app.get('/account/sites/:name/dexcom/connect', sites.findSite, sites.getRunTime, sharebridge.suggest, sharebridge.json);
+  app.post('/account/sites/:name/dexcom/connect', sites.findSite, sites.getRunTime, sharebridge.suggest, sharebridge.verify, sharebridge.enable, sharebridge.json);
+
   app.get('/account/sites/:name/runtime/:field', sites.findSite, sites.getRunTime, sites.getRunTimeOption, sites.fmtRunTime);
   app.post('/account/sites/:name/runtime/:field', sites.findSite, sites.getRunTime,  sites.setRunTimeOption, sites.clean_proc_runtime, sites.fmtRunTime);
   app.delete('/account/sites/:name/runtime/:field', sites.findSite, sites.getRunTime, sites.delRunTimeOption, sites.clean_proc_runtime, sites.fmtRunTime);

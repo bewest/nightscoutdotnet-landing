@@ -55,7 +55,8 @@
     "passport-tumblr": "^0.1.2",
     "passport-twitter": "^1.0.2",
     "request": "^2.58.0",
-    "serve-static": "^1.1.0"
+    "serve-static": "^1.1.0",
+    "share2nightscout-bridge": "github:nightscout/share2nightscout-bridge"
   },
   "devDependencies": {},
   "private": true,

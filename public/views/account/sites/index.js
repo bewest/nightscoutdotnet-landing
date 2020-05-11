@@ -80,7 +80,10 @@
       console.log(f);
       dom.find(prefix + '.' + f).not(':input').text(item[f]);
       dom.find(prefix + '.' + f).filter('input').not(':checkbox, select').val(item[f]);
-      dom.find(prefix + '.' + f).filter('select').val(item[f]).trigger('chosen:updated');
+      dom.find(prefix + '.' + f).filter('select').not('.ENABLE').val(item[f]).trigger('chosen:updated');
+      if (f == 'ENABLE') {
+        dom.find(prefix + '.' + f).filter('select.chosen-select.ENABLE').val(item[f].split(' ')).trigger('chosen:updated');
+      }
       // console.log(dom.find(prefix + '.' + f), dom.find(prefix + '.' + f).filter('.data-binary-label'));
       dom.find(prefix + '.' + f).filter('.binary-data-label').each(function ( ) {
         var val = item[f];
@@ -250,6 +253,11 @@
         .on('change switchChange.bootstrapSwitch', '.panel :input:not(.nochanges)', data,
       function (ev, state) {
         // console.log("changing", ev, ev.target);
+        if (overview.is('.editing')) {
+          console.log('already editing, returning');
+          return;
+        }
+        overview.toggleClass('editing', true);
         var target = $(ev.target);
         var name = target.attr('name') || target.data('field-name');
         console.log('name', name, target.attr('class'), target.val( ), state);
@@ -273,23 +281,36 @@
           
           payload[name] = ' ' + alarms;
         }
+
+        var ENABLE = _.uniq(payload.ENABLE || ['']).join(' ');
+        if (name == 'ENABLE' && target.is('select')) {
+          console.log(payload);
+          payload[name] = ENABLE;
+        }
+
         if (target.is('.enabler')) {
           name = 'ENABLE';
           payload = { };
-          var enabled = [''  ];
+          var enabled = ENABLE.split(' ');
           overview.find('.enabler:checked').each(function ( ) {
             var val = $(this).val( );
-            if (!target.is('.enable_' + val) || target.is($(this)))
+            if (!target.is('.enable_' + val) || target.is($(this))) {
               enabled.push($(this).val( ));
+            } else {
+            }
           });
-          payload[name] = ' ' + enabled.join(' ');
+          payload[name] = ' ' + _.uniq(enabled).join(' ');
         }
+
         var url = api + '/' + name;
         console.log('payload', payload, url);
         if (name) {
           $.post(url, payload, function (body, status, xhr) {
              console.log("SAVED RESULTS!", url, body, status);
              overview.trigger('ns.saved', [body]);
+             overview.trigger('loaded', [body]);
+             overview.toggleClass('editing', false);
+             // overview.trigger('ns.saved', [body]);
           });
           
         }
@@ -310,6 +331,8 @@
     root.on('click', 'TR.site-row .delete-site', delete_site);
     $('#Inspector').on('click', '.site-row .delete-view', delete_view);
     root.on('click', '.btn.upload-details', upload_details);
+
+    /*
     $('#Details').on('show.bs.modal', function (ev) {
       var button = $(ev.relatedTarget || ev.target);
       var uris = {
@@ -333,6 +356,7 @@
       $('#http-xdrip-upload-qr .code').empty( ).qrcode(JSON.stringify(json));
       $('#http-xdrip-upload-qr .uri').empty( ).text(uris.xdrip);
     });
+    */
 
     $('FORM.ajax[data-target]').on('submit', function (ev) {
       ev.preventDefault( );

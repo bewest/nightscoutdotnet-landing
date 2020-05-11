@@ -55,11 +55,11 @@ block body
           li(role="presentation")
             a(role="tab", data-toggle="tab", href="#DataIngress")
               i.fa.fa-upload
-              = ' Data'
-          //- li(role="presentation")
+              = ' Dexcom G6'
+          li(role="presentation")
             a(role="tab", data-toggle="tab", href="#Authorization")
               i.fa.fa-key
-              = ' Auth'
+              = ' Nightscout Status'
           li(role="presentation")
             a(role="tab", data-toggle="tab", href="#Uploaders")
               i.fa.fa-cloud-upload
@@ -134,10 +134,16 @@ block body
                       | always
                     option(value="noise")
                       | noise
-              //- div.panel-body
+              .panel-heading
+                h5.panel-title
+                  | Enabled Plugins&nbsp;
+              div.panel-body
+                div
+                  tt.e.env.ENABLE(readonly='readonly')
+                div
                   label.btn.btn-default
                     = ' Enable '
-                    select.chosen-select(multiple="multiple", data-placeholder="Enable" )
+                    select.e.env.ENABLE.chosen-select(name='ENABLE', multiple="multiple", data-placeholder="Enable" )
                       option
                         | careportal
                       option
@@ -154,8 +160,6 @@ block body
                         | delta
                       option(selected="selected")
                         | direction
-                      option(selected="selected")
-                        | upbat
                       option(selected="selected")
                         | upbat
                       option(selected="selected")
@@ -256,18 +260,18 @@ block body
               .panel-heading
                   = ' Time ago  '
               .panel-body
-                .row
-                  .input-group
-                    p.input-group-addon
-                      = ' Warn when time ago exceeds '
-                    input.form-control.e.env.ALARM_TIMEAGO_WARN_MINS(type="number", name="ALARM_TIMEAGO_WARN_MINS")
+                  .input-group.col-xs-6.col-md-3
+                    = ' When last reading is more than'
+                  .input-group.col-xs-6.col-md-3
+                    input.form-control.e.env.ALARM_TIMEAGO_WARN_MINS(type="number", width=3, name="ALARM_TIMEAGO_WARN_MINS")
                     span.input-group-addon
-                      tt minutes
+                      tt minutes old
                     span.input-group-addon
-                      input.binary-data-on-off.toggle-check.e.env.ALARM_TIMEAGO_WARN(type="checkbox", checked="checked", data-size="mini", data-toggle="toggle", data-on="alarm", data-off="do nothing", name="ALARM_TIMEAGO_WARN")
-                  .input-group
-                    p.input-group-addon
-                      = ' Urgent alarm when time ago exceeds '
+                      input.binary-data-on-off.toggle-check.e.env.ALARM_TIMEAGO_WARN(type="checkbox", checked="checked", data-size="mini", data-toggle="toggle", data-on="warn", data-off="do nothing", name="ALARM_TIMEAGO_WARN")
+                  div.clearfix
+                  .input-group.col-xs-6.col-md-3
+                    = ' Urgent alarm when time ago exceeds '
+                  .input-group.col-xs-6.col-md-3
                     input.form-control.e.env.ALARM_TIMEAGO_URGENT_MINS(type="number", name="ALARM_TIMEAGO_URGENT_MINS")
                     span.input-group-addon
                       tt minutes
@@ -281,107 +285,108 @@ block body
                   = ' Custom thresholds  '
                   input.toggle-check.enabler.enable_simplealarms.e.env.ENABLED_SIMPLEALARMS(type="checkbox", checked="checked", data-size="mini", data-toggle="toggle", data-on="alarm", data-off="display", value="simplealarms")
 
-              table
-                tr
-                  td
-                    label.btn.btn-default.form-control
-                      = ' High BG '
-                  td.input-group
-                    input.e.env.BG_HIGH.form-control(type="number", size="100", maxlength="3", name="BG_HIGH")
-                    span.input-group-addon
-                      = ' mg/dL'
-                    //- span.input-group-addon
-                      input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="Urgent alarm", data-off="Display")
+              .panel-body
+                table
+                  tr
+                    td
+                      label.btn.btn-default.form-control
+                        = ' High BG '
+                    td.input-group
+                      input.e.env.BG_HIGH.form-control(type="number", size="100", maxlength="3", name="BG_HIGH")
+                      span.input-group-addon
+                        = ' mg/dL'
+                      //- span.input-group-addon
+                        input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="Urgent alarm", data-off="Display")
 
-                tr
-                  td
-                    label.btn.btn-default.form-control
-                      = ' Target top '
-                  td.input-group
-                    input.e.env.BG_TARGET_TOP.form-control(type="number", size="100", maxlength="3", name="BG_TARGET_TOP")
-                    span.input-group-addon
-                      = ' mg/dL'
-                    //- span.input-group-addon
-                      input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="Urgent alarm", data-off="Display")
+                  tr
+                    td
+                      label.btn.btn-default.form-control
+                        = ' Target top '
+                    td.input-group
+                      input.e.env.BG_TARGET_TOP.form-control(type="number", size="100", maxlength="3", name="BG_TARGET_TOP")
+                      span.input-group-addon
+                        = ' mg/dL'
+                      //- span.input-group-addon
+                        input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="Urgent alarm", data-off="Display")
 
-                tr
-                  td
-                    label.btn.btn-default.form-control
-                      = ' Target bottom '
-                  td.input-group
-                    input.e.env.BG_TARGET_BOTTOM.form-control(type="number", size="100", maxlength="3", name="BG_TARGET_BOTTOM")
-                    span.input-group-addon
-                      = ' mg/dL'
-                    //- span.input-group-addon
-                      input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="Urgent alarm", data-off="Display")
+                  tr
+                    td
+                      label.btn.btn-default.form-control
+                        = ' Target bottom '
+                    td.input-group
+                      input.e.env.BG_TARGET_BOTTOM.form-control(type="number", size="100", maxlength="3", name="BG_TARGET_BOTTOM")
+                      span.input-group-addon
+                        = ' mg/dL'
+                      //- span.input-group-addon
+                        input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="Urgent alarm", data-off="Display")
 
-                tr
-                  td
-                    label.btn.btn-default.btn.form-control
-                      = ' Low BG '
-                  td.input-group
-                    input.e.env.BG_LOW.form-control(type="number", size="100", maxlength="3", name="BG_LOW")
-                    span.input-group-addon
-                      = ' mg/dL'
-                    //- span.input-group-addon
-                      input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="Urgent alarm", data-off="Display")
+                  tr
+                    td
+                      label.btn.btn-default.btn.form-control
+                        = ' Low BG '
+                    td.input-group
+                      input.e.env.BG_LOW.form-control(type="number", size="100", maxlength="3", name="BG_LOW")
+                      span.input-group-addon
+                        = ' mg/dL'
+                      //- span.input-group-addon
+                        input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="Urgent alarm", data-off="Display")
 
 
 
-              //- .panel-heading
-                label.btn.btn-default
-                  = ' Cannula age '
-                  input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="On", data-off="Off")
-              //- ul.list-group
-                li.list-group-item
+                //- .panel-heading
                   label.btn.btn-default
-                    = ' Notifications '
+                    = ' Cannula age '
                     input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="On", data-off="Off")
-                  :markdown
-                    Notify when the time in *hours* since the last site change
-                    indicates upcoming, change, and overdue events.
-                li.list-group-item
-                  label.btn.btn-default
-                    = ' Notify '
-                    input.e.env(type="number")
-                    tt
-                      = ' hours '
-                  :markdown
-                    since last site change that a cannula change is coming
-                    soon.
-                li.list-group-item
-                  label.btn.btn-default
-                    = ' Warn '
-                    input.e.env(type="number")
-                    tt
-                      = ' hours '
-                  :markdown
-                    since last site change that cannula is due to be changed.'
-                li.list-group-item
-                  label.btn.btn-default
-                    = ' Alarm '
-                    input.e.env(type="number")
-                    tt
-                      = ' hours '
-                  :markdown
-                    since last site change that cannula is overdue for
-                    change.'
+                //- ul.list-group
+                  li.list-group-item
+                    label.btn.btn-default
+                      = ' Notifications '
+                      input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="On", data-off="Off")
+                    :markdown
+                      Notify when the time in *hours* since the last site change
+                      indicates upcoming, change, and overdue events.
+                  li.list-group-item
+                    label.btn.btn-default
+                      = ' Notify '
+                      input.e.env(type="number")
+                      tt
+                        = ' hours '
+                    :markdown
+                      since last site change that a cannula change is coming
+                      soon.
+                  li.list-group-item
+                    label.btn.btn-default
+                      = ' Warn '
+                      input.e.env(type="number")
+                      tt
+                        = ' hours '
+                    :markdown
+                      since last site change that cannula is due to be changed.'
+                  li.list-group-item
+                    label.btn.btn-default
+                      = ' Alarm '
+                      input.e.env(type="number")
+                      tt
+                        = ' hours '
+                    :markdown
+                      since last site change that cannula is overdue for
+                      change.'
 
-              //- table.table
-                //- tr
-                  th(colspan="1")
-                    = ''
-                  th
-                    = ''
-                  th
-                    = ''
-                tr
-                  td(colspan="1")
-                  td
-                  td
+                //- table.table
+                  //- tr
+                    th(colspan="1")
+                      = ''
+                    th
+                      = ''
+                    th
+                      = ''
+                  tr
+                    td(colspan="1")
+                    td
+                    td
 
-                tr
-                  td(colspan="3")
+                  tr
+                    td(colspan="3")
 
             div.panel.panel-warning
               div.panel-body
@@ -417,7 +422,11 @@ block body
                   |&nbsp;
 
           div.tab-pane#Authorization(role="tabpanel")
-            iframe(width=800, height=600, src="//#{site.domain}/embedded/")
+            .container
+              .row
+                .col-md-9
+                  div.embed-responsive.embed-responsive-4by3
+                    iframe.embed-responsive-item(width='100%', height='400', src="//#{site.domain}/embedded/")
           div.tab-pane#Views(role="tabpanel")
 
             h4

@@ -86,11 +86,18 @@ exports.deleteView = function (req, res, next) {
           , internal_name: req.hosted_site.internal_name
     }
   };
-  req.app.db.models.View.remove(q, function (err, site) {
+
+  req.app.db.models.View.deleteOne(q, function (err, site) {
     if (err) {
       return next(err);
     }
-    res.status(204).send("").end( );
+    var api = req.app.config.proxy.backplane;
+    var url = api + '/views/inspect/' + req.site.key + '/' + q.name;
+    request.del({ url: url, json: true }, function done (err, result, body) {
+      if (err) { return next(err); }
+      res.status(204).json(q.name).end( );
+      next( );
+    });
   });
 };
 
@@ -271,7 +278,9 @@ exports.examine = function (req, res, next) {
     if (err || sites == null) {
       return next(err);
     }
-    var site = [sites].map(sitePrefixes(get_bases(req))).pop( );
+    var site = sites;
+    site.api_secret = req.site.proc.custom_env.API_SECRET;
+    site = [site].map(sitePrefixes(get_bases(req))).pop( );
     var data = { user: req.user, name: req.params.name, site: site, bases: bases };
     res.format({
       'json': function ( ) {
@@ -368,7 +377,7 @@ exports.remove = function(req, res, next) {
     });
     req.user.roles.account.update(req.user.roles.account, function (err, saved) {
       console.log('saved account', err, saved);
-      req.app.db.models.Site.remove(q, function (err, site) {
+      req.app.db.models.Site.deleteOne(q, function (err, site) {
           // req.app.db.models.Site.findOneAndRemove(q, function (err, site) { });
           console.log('removed from db', 'query', q, 'err', err, 'site??', site);
           /*

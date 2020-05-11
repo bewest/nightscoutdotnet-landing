@@ -59,6 +59,7 @@
     names.not(':input').text(item.name);
     // var base = '//' + item.name + '-login.diabetes.watch';
     var base = '//' + item.domain;
+    clone.find('.v.api_secret').not(':input').text(item.api_secret).prev( ).filter(':input').val(item.api_secret);
     clone.find('IMG.status').attr('src', base + '/api/v1/status.png');
     clone.find('A.v.view').attr('href', base + '/');
     clone.find('A.v.clock-mode').attr('href', base + '/clock.html');
@@ -84,7 +85,7 @@
       dom.find(prefix + '.' + f).filter('.binary-data-label').each(function ( ) {
         var val = item[f];
         var elem = $(this);
-        console.log('filling', elem, val);
+        // console.log('filling', elem, val);
         if (elem.data('on').toString( ).toLowerCase( ) == val.toLowerCase( )) {
           elem.attr('checked', 'checked').trigger('change');
         } else {
@@ -160,8 +161,10 @@
     var enabled = [null].concat((env.ENABLE || 'delta direction ar2 errorcodes').split(' '));
     var config = { };
     var known = [
-        'careportal' , 'rawbg' , 'iob' , 'cob', 'bridge'
-      , 'bwp' , 'cage' , 'delta'
+        'careportal' , 'rawbg' , 'iob' , 'cob', 'bage', 'bridge'
+      , 'bwp' , 'cage' , 'delta', 'iage', 'sage'
+      , 'pump', 'openaps', 'loop', 'override', 'xdripjs'
+      , 'alexa', 'googlehome', 'speech'
       , 'direction' , 'upbat' , 'ar2'
       , 'simplealarms' , 'errorcodes' , 'treatmentnotify'
       , 'basal' , 'pushover' , 'maker'
@@ -207,11 +210,11 @@
 
     var inspector = $('#Inspector');
     inspector.on('loaded', function (ev, body) {
-      console.log('loaded inspector', body);
+      console.log('loaded inspector #Inspector', body);
       if (body && body.site) {
         fill_details($(this), body.site);
         // fill_details($(this), body);
-        $('#Details').trigger('show.bs.modal');
+        // $('#Details').trigger('show.bs.modal');
       }
     });
 
@@ -219,6 +222,7 @@
     views.on('loaded', function (ev, data) {
       console.log('loaded', views, data);
       var body = views.find('.body');
+      body.empty( );
       if (data) {
         var template = viewTemplate(views.find('.template TR').clone(true).removeClass('template'));
         data.map(function (site, i) {
@@ -232,19 +236,20 @@
 
     var overview = $('#Overview, #DataIngress');
     overview.on('loaded', function (ev, data) {
+
       var api = overview.data('ajax-target');
       var config = env_config(data.custom_env);
       data.config = config;
-      console.log("CONFIG", api, config);
+      console.log("CONFIG move to here", api, config);
       if (data && data.state) {
         fill_editor(overview, data);
         fill_editor(overview, data.custom_env);
-        console.log('updated', overview);
+        // console.log('updated', overview);
       }
       overview.off('change switchChange.bootstrapSwitch')
         .on('change switchChange.bootstrapSwitch', '.panel :input:not(.nochanges)', data,
       function (ev, state) {
-        console.log("changing", ev, ev.target);
+        // console.log("changing", ev, ev.target);
         var target = $(ev.target);
         var name = target.attr('name') || target.data('field-name');
         console.log('name', name, target.attr('class'), target.val( ), state);
@@ -283,7 +288,7 @@
         console.log('payload', payload, url);
         if (name) {
           $.post(url, payload, function (body, status, xhr) {
-             console.log("SAVED RESULTS!", body, status);
+             console.log("SAVED RESULTS!", url, body, status);
              overview.trigger('ns.saved', [body]);
           });
           
@@ -329,13 +334,76 @@
       $('#http-xdrip-upload-qr .uri').empty( ).text(uris.xdrip);
     });
 
-    $('[data-ajax-target]').each(function (idx, elem) {
-      var url = $(this).data('ajax-target');
+    $('FORM.ajax[data-target]').on('submit', function (ev) {
+      ev.preventDefault( );
+      var form = $(ev.delegateTarget);
+      var data = form.serialize( );
+      var url = form.attr('action') || form.data('action');
+      var target = form.data('target');
+      var method = form.attr('method') || 'POST';
+      $.ajax({url: url, method: method, data: data}).done(function (body, status, xhr) {
+        console.log('successful post', url, body, status);
+        $(target).trigger('refresh.ns');
+      });
+      return false;
+    });
+
+    $('body').on('refresh.ns', '[data-ajax-target]', function (ev) {
+      var elem = $(ev.target);
+      // console.log('refreshing', elem, ev);
+      ev.stopImmediatePropagation( );
+      var url = elem.data('ajax-target');
       $.get(url, function (body, status, xhr) {
          // var ev = $.Event("loaded");
          // ev.data = body;
          $(elem).trigger('loaded', [body]);
       });
+    });
+
+    $('#views-list').on('loaded', function (ev, data) {
+      var uploaders = data.filter(function (el) {
+        return el.name.indexOf('upload-') === 0;
+      });
+      console.log("Loaded Uploaders", uploaders);
+      $('#Uploaders').trigger('loaded', [uploaders]);
+    });
+
+    $('#Uploaders').on('loaded', function (ev, data) {
+      var num = data.length;
+      var root = $(this);
+      root.find('.empty-uploaders').toggleClass('hidden', num > 0);
+      root.find('#uploader_name').val('upload-' + num);
+      var api_secret = root.find('.v.api_secret').text( );
+      var button = root;
+      var view = data.pop( );
+      if (data && view) {
+        var uris = {
+          mqtt: button.find('A.mqtt-upload').attr('href')
+        , rest: ['https://', api_secret, '@', view.domain ].join('')
+        , v1: button.find('A.http-upload').attr('href') + '/'
+        , xdrip: [api_secret, view.url + 'api/v1/'].join('@')
+        };
+        var json;
+        json = {mqtt: { uri: uris.mqtt }};
+        $('#mqtt-upload-qr .code').empty( ).qrcode(JSON.stringify(json));
+        $('#mqtt-upload-qr .uri').empty( ).text(uris.mqtt);
+        json = {rest: { endpoint: [uris.rest] } };
+        $('#http-upload-qr .code').empty( ).qrcode(JSON.stringify(json));
+        $('#http-upload-qr .uri').empty( ).text(uris.rest);
+        json = {rest: { endpoint: [uris.v1] } };
+        console.log('HEy', json);
+        $('#http-xdrip-beta-upload-qr .code').empty( ).qrcode(JSON.stringify(json));
+        $('#http-xdrip-beta-upload-qr .uri').empty( ).text(uris.v1);
+        json = {rest: { endpoint: [uris.xdrip] } };
+        $('#http-xdrip-upload-qr .code').empty( ).qrcode(JSON.stringify(json));
+        $('#http-xdrip-upload-qr .uri').empty( ).text(uris.xdrip);
+      }
+    });
+
+    $('[data-ajax-target]').each(function (idx, elem) {
+      // console.log('refresh', idx, elem, $(elem).length);
+      $(elem).trigger('refresh.ns');
+      var elem = $(elem);
     });
   });
 }( ));

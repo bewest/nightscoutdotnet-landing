@@ -257,7 +257,7 @@ exports = module.exports = function(app, passport) {
   app.post('/account/sites/', sites.create);
   app.delete('/account/sites/:name', sites.findSite, sites.remove);
   app.get('/account/sites/list.json', sites.list);
-  app.get('/account/sites/:name', sites.examine);
+  app.get('/account/sites/:name', sites.findSite, sites.getRunTime, sites.examine);
   app.get('/account/sites/:name/views', sites.jsonIfXHR, sites.findSite, sites.listView);
   app.get('/account/sites/:name/runtime', sites.findSite, sites.getRunTime, sites.fmtRunTime);
   app.post('/account/sites/:name/runtime', sites.findSite, sites.getRunTime, sites.suggestRunTime, sites.setRunTime, sites.clean_proc_runtime, sites.fmtRunTime);

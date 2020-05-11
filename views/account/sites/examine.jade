@@ -38,6 +38,7 @@ block body
       div.page-header
         h1 #{name}
 
+  // div.row#Inspector(data-ajax-target='./#{name}/runtime')
   div.row#Inspector(data-ajax-target='')
     div.col-xs-3
 
@@ -59,7 +60,7 @@ block body
             a(role="tab", data-toggle="tab", href="#Authorization")
               i.fa.fa-key
               = ' Auth'
-          //- li(role="presentation")
+          li(role="presentation")
             a(role="tab", data-toggle="tab", href="#Uploaders")
               i.fa.fa-cloud-upload
               = ' Uploaders'
@@ -89,13 +90,13 @@ block body
                     | #{bases.viewer}
               //- div.panel-body(data-ajax-target='//#{site.domain}/api/v1/status.js')
               div.panel-body
-                div
-                  
-                  tt Api Secret&nbsp;
-                    input.e.env.API_SECRET(readonly=true, disabled=true)
-
                 span.v.status
                 img.v.status
+                div
+                  p
+                    tt Api Secret&nbsp;
+                      span.e.env.API_SECRET(readonly=true, disabled=true)
+
                 tt
                   a.mqtt-upload.hidden MQTT
                 tt
@@ -398,7 +399,7 @@ block body
               Sign into Dexcom to fetch glucose data.
             form#DexcomLogin(data-action='/account/sites/#{site.name}/dexcom/connect')
               p Nightscout uses this information to get cgm data.
-              .panel
+              .col-md-4.panel
                 div.form-group.bridge-enablers
                   label.btn.btn-default
                     = ' Enable Dexcom '
@@ -454,7 +455,7 @@ block body
               tbody.tail.add-new-view
                 tr
                   td(colspan="5")
-                    form(method="POST", action="/account/sites/#{site.name}/views")
+                    form.ajax(method="POST", data-target="#views-list", action="/account/sites/#{site.name}/views")
                       div.input-group
                         input.form-control(type="text", name="viewName", placeholder="Name", aria-describedby="new-view-name")
                         span.input-group-addon#new-view-name #{site.guest}
@@ -466,7 +467,7 @@ block body
               a.v.mqtt-upload.hidden
               a.v.http-upload.hidden
               .xxmodal-dialog(role="document")
-                .xxxxmodal-content
+                .xxxxmodal-content.panel
                   .xxxmodal-header
                     h4 
                       i.fa.fa-cloud-upload
@@ -476,18 +477,37 @@ block body
                   .modal-body
                     p Scan this image
                     ul.nav.nav-tabs(role="tablist")
-                      li.active(role="presentation")
+                      //- li
                         a(href="#mqtt-upload-qr", role="tab", data-toggle="tab")
                           | MQTT
-                      li
+                      li.active(role="presentation")
                         a(href="#http-upload-qr", data-toggle="tab")
                           | HTTP
+                      li(role="presentation")
+                        a(href="#http-xdrip-upload-qr", data-toggle="tab")
+                          | XDrip 
                     .tab-content
-                      div.active.tab-pane#mqtt-upload-qr(role="tabpanel")
+                      p
+                        tt Api Secret&nbsp;
+                          span.v.api_secret(readonly=true, disabled=true) #{site.apisecret}
+                      .empty-uploaders
+                        form.ajax(method="POST", data-target="#views-list", action="/account/sites/#{site.name}/views")
+                         .well
+                          :markdown
+                            No uploaders created yet.  Create an uploader.
+                          div.input-group
+                            input.nochanges.form-control#uploader_name(type="hidden", name="viewName", placeholder="upload-0", aria-describedby="new-view-name", readonly="readonly")
+                            div.input-group-btn
+                              button.btn.btn-success(type="submit") Create uploader
+                      div.tab-pane#mqtt-upload-qr(role="tabpanel")
                         div.code
                         p
                           tt.uri
-                      div.tab-pane#http-upload-qr(role="tabpanel")
+                      div.active.in.tab-pane#http-upload-qr(role="tabpanel")
+                        div.code
+                        p
+                          tt.uri
+                      div.tab-pane#http-xdrip-upload-qr(role="tabpanel")
                         div.code
                         p
                           tt.uri

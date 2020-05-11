@@ -55,11 +55,11 @@ block body
           li(role="presentation")
             a(role="tab", data-toggle="tab", href="#DataIngress")
               i.fa.fa-upload
-              = ' Data'
-          //- li(role="presentation")
+              = ' Dexcom G6'
+          li(role="presentation")
             a(role="tab", data-toggle="tab", href="#Authorization")
               i.fa.fa-key
-              = ' Auth'
+              = ' Nightscout Status'
           li(role="presentation")
             a(role="tab", data-toggle="tab", href="#Uploaders")
               i.fa.fa-cloud-upload
@@ -138,9 +138,9 @@ block body
                 h5.panel-title
                   | Enabled Plugins&nbsp;
               div.panel-body
-                div.row.container
+                div
                   tt.e.env.ENABLE(readonly='readonly')
-                div.row.container
+                div
                   label.btn.btn-default
                     = ' Enable '
                     select.e.env.ENABLE.chosen-select(name='ENABLE', multiple="multiple", data-placeholder="Enable" )
@@ -260,17 +260,18 @@ block body
               .panel-heading
                   = ' Time ago  '
               .panel-body
-                  .input-group
-                    p.input-group-addon
-                      = ' Warn when time ago exceeds '
-                    input.form-control.e.env.ALARM_TIMEAGO_WARN_MINS(type="number", name="ALARM_TIMEAGO_WARN_MINS")
+                  .input-group.col-xs-6.col-md-3
+                    = ' When last reading is more than'
+                  .input-group.col-xs-6.col-md-3
+                    input.form-control.e.env.ALARM_TIMEAGO_WARN_MINS(type="number", width=3, name="ALARM_TIMEAGO_WARN_MINS")
                     span.input-group-addon
-                      tt minutes
+                      tt minutes old
                     span.input-group-addon
-                      input.binary-data-on-off.toggle-check.e.env.ALARM_TIMEAGO_WARN(type="checkbox", checked="checked", data-size="mini", data-toggle="toggle", data-on="alarm", data-off="do nothing", name="ALARM_TIMEAGO_WARN")
-                  .input-group
-                    p.input-group-addon
-                      = ' Urgent alarm when time ago exceeds '
+                      input.binary-data-on-off.toggle-check.e.env.ALARM_TIMEAGO_WARN(type="checkbox", checked="checked", data-size="mini", data-toggle="toggle", data-on="warn", data-off="do nothing", name="ALARM_TIMEAGO_WARN")
+                  div.clearfix
+                  .input-group.col-xs-6.col-md-3
+                    = ' Urgent alarm when time ago exceeds '
+                  .input-group.col-xs-6.col-md-3
                     input.form-control.e.env.ALARM_TIMEAGO_URGENT_MINS(type="number", name="ALARM_TIMEAGO_URGENT_MINS")
                     span.input-group-addon
                       tt minutes
@@ -284,7 +285,7 @@ block body
                   = ' Custom thresholds  '
                   input.toggle-check.enabler.enable_simplealarms.e.env.ENABLED_SIMPLEALARMS(type="checkbox", checked="checked", data-size="mini", data-toggle="toggle", data-on="alarm", data-off="display", value="simplealarms")
 
-              .panel-body.container
+              .panel-body
                 table
                   tr
                     td
@@ -421,7 +422,11 @@ block body
                   |&nbsp;
 
           div.tab-pane#Authorization(role="tabpanel")
-            iframe(width=800, height=600, src="//#{site.domain}/embedded/")
+            .container
+              .row
+                .col-md-9
+                  div.embed-responsive.embed-responsive-4by3
+                    iframe.embed-responsive-item(width='100%', height='400', src="//#{site.domain}/embedded/")
           div.tab-pane#Views(role="tabpanel")
 
             h4

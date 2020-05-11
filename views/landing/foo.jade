@@ -1,0 +1,56 @@
+extends ../../layouts/default
+
+block head
+  title T1Pal
+
+block neck
+  link(rel='stylesheet', href='/views/index.min.css?#{cacheBreaker}')
+
+block body
+  body
+    // Start: 1 Row 2 Columns
+    div
+      .container
+        .row.text-left
+          .col-12.col-md-6.col-xl-6.align-self-center
+            h1 We Are Not Waiting
+            p
+              | NightScout is free open-source software created by dozens of experts to help manage the distribution and display of vital blood glucose measurements.  It works.
+            p But it's a challenging Do-It-Yourself project.
+            p
+              | We offer the first commercial hosted NightScout service, complete with a curated list of plugins and add-ons.   And we relentlessly test our solutions so you don't have to.
+            p Some things are just too important to Do-It-Yourself.  We have a better way.
+          .col-auto.col-md-6.col-xl-6.text-center(style='width: 500;')
+            img.img-thumbnail.border-white(src='assets/img/one_watch.jpg', width='70%')
+      .container
+      .container
+        .row.text-left
+          .col-11.col-md-6.col-xl-6.text-center
+            img.border.rounded-0.border-white(src='assets/img/IMG_1211-150x150.jpg', width='70%')
+          .col-12.col-xl-5
+            h1 The Basics
+            p
+              | Sign-Me-Up on this site and you will immediately benefit from a highly automated system configuration that gets data from your Dexcom G6* device flowing into a live instance of NightScout.
+            p
+              | This means you get the NightScout display, and the NightScout features that enable others to see the same display.   All without worrying about internet hosting, database, and configuration headaches.
+            p
+              | It also means you get our 24 x 7 x 365 telephone, text, and email support should you have questions or problems with your service.
+      .container
+      .container
+        .row(style='margin: 107;')
+          .col
+            .container(style='margin: 100;')
+              h1 Tell Me More
+              p Our T1 Pal service isn't for everyone.
+              p
+                | We specifically support only the Dexcom G6 CGM data feed at this time.  Our monthly subscription fee is $19.99 per month or  $199.00 per year if paid in advance.
+              p
+                | We are not your Doctor.   Consult your licensed physician in your area about whether or not this is suitable for you.
+              p Terms and Conditions Apply.
+          .col-auto.col-md-6.col-xl-6.text-center
+            img.img-thumbnail.border-white(src='assets/img/IMG_1217-150x150.jpg', width='70%', height='100%')
+      .container
+    // End: 1 Row 2 Columns
+    script(src='assets/js/jquery.min.js')
+    script(src='assets/bootstrap/js/bootstrap.min.js')
+

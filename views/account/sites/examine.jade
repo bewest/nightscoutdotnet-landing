@@ -134,7 +134,7 @@ block body
                       | always
                     option(value="noise")
                       | noise
-              div.panel-body
+              //- div.panel-body
                   label.btn.btn-default
                     = ' Enable '
                     select.chosen-select(multiple="multiple", data-placeholder="Enable" )
@@ -399,7 +399,7 @@ block body
               Sign into Dexcom to fetch glucose data.
             form#DexcomLogin(data-action='/account/sites/#{site.name}/dexcom/connect')
               p Nightscout uses this information to get cgm data.
-              .panel
+              .col-md-4.panel
                 div.form-group.bridge-enablers
                   label.btn.btn-default
                     = ' Enable Dexcom '

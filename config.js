@@ -63,7 +63,8 @@ exports.smtp = {
 
 exports.servicebot_id = process.env.SERVICEBOT_ID || '';
 exports.servicebot_key = process.env.SERVICEBOT_KEY || '';
-exports.servicebot_service = process.env.SERVICEBOT_SERVICE || 'Flat Monthly';
+exports.servicebot_service = process.env.SERVICEBOT_SERVICE || 'T1Pal';
+exports.servicebot_default_coupon = process.env.SERVICEBOT_DEFAULT_COUPON || "h6WV95Lo";
 
 exports.SCRIPT_NAME = process.env.SCRIPT_NAME || '';
 exports.oauth_base = process.env.OAUTH_BASE;

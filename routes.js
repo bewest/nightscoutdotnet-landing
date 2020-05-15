@@ -330,6 +330,20 @@ exports = module.exports = function(app, passport) {
   app.get('/account/settings/tumblr/callback/', require('./views/account/settings/index').connectTumblr);
   app.get('/account/settings/tumblr/disconnect/', require('./views/account/settings/index').disconnectTumblr);
 
+
+  var path = require('path');
+  function template (prefix, views) {
+    app.get(prefix,
+      function renderTemplate (req, res, next) {
+
+        var name = req.params.name;
+        res.render(path.join(views, name));
+      }
+    );
+  }
+  template('/legal/:name', './legal/');
+  template('/about/:name', './about/page/');
+  template('/beta/:name', './beta/');
   /*
   // Some debug testing, remove.
   app.all('/x*', ensureAuthenticated);

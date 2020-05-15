@@ -5,6 +5,7 @@ var config = require('./config'),
     express = require('express'),
     cookieParser = require('cookie-parser'),
     bodyParser = require('body-parser'),
+    consolidate = require('consolidate'),
     session = require('express-session'),
     mongoStore = require('connect-mongo')(session),
     http = require('http'),
@@ -36,6 +37,9 @@ require('./models')(app, mongoose);
 //settings
 app.disable('x-powered-by');
 app.set('port', config.port);
+app.engine('html', consolidate.ejs);
+app.engine('htm', consolidate.ejs);
+app.engine('jade', consolidate.jade);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 

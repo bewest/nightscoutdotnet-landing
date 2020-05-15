@@ -201,7 +201,7 @@
       });
     });
     var root = $('#site-list');
-    // $.get('/account/sites/list.json',
+    // $.get('/account/sites/list.json', // null);
     root.on('loaded', function (ev, body, status, xhr) {
       var template = cloner($('.template-site .site-row').clone(true));
       body.map(function (site) {
@@ -215,6 +215,9 @@
     inspector.on('loaded', function (ev, body) {
       console.log('loaded inspector #Inspector', body);
       if (body && body.site) {
+        if (!body.site.tour_given_at) {
+         $('#OnboardingWizard').modal('show');
+        }
         fill_details($(this), body.site);
         // fill_details($(this), body);
         // $('#Details').trigger('show.bs.modal');
@@ -243,7 +246,7 @@
       var api = overview.data('ajax-target');
       var config = env_config(data.custom_env);
       data.config = config;
-      console.log("CONFIG move to here", api, config);
+      console.log("CONFIG move to here", api, data, config);
       if (data && data.state) {
         fill_editor(overview, data);
         fill_editor(overview, data.custom_env);
@@ -429,5 +432,54 @@
       $(elem).trigger('refresh.ns');
       var elem = $(elem);
     });
+
+    app.router = new app.Router( );
+    Backbone.history.start({ root: window.location.pathname });
+    $('body .toolbar-pane').on('shown.bs.tab',  function (ev) {
+      var elem = $(ev.target);
+      var value = (elem.is('A') ? elem.attr('href') : elem.data('target')).slice(1);
+      app.router.navigate(value, {trigger: false, replace: true});
+      $(':visible .modal').modal('hide');
+    });
+
   });
+
+  $('#OnboardingWizard').on('click', '.wizard-submit', function (ev) {
+
+    var form = $(ev.target).closest('[data-action]');
+    if ($(ev.target).is('A.btn-success')) {
+      form.find('.dismiss_seen').attr('checked', 'checked');
+    }
+
+    var data = form.serialize( );
+    var url = form.data('action');
+    var opts = {
+      method: 'POST'
+    , data: data
+    , url: url
+    };
+
+    if (data) {
+      $.ajax(opts).always( function (body, status, xhr) {
+
+      });
+    }
+  });
+
+  app.Router = Backbone.Router.extend({
+    routes: {
+      '': 'overview'
+    , ':param': 'general'
+    },
+    general: function (param) {
+      var filters = [
+        '[data-target="#' + param + '"]'
+      , '[href="#' + param + '"]'
+      ].join(', ');
+      var selector = '[data-toggle="tab"]';
+      var method = $(selector).filter(filters ).data('toggle');
+      $(selector).filter(filters )[method]('show');
+    }
+  });
+
 }( ));

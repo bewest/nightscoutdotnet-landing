@@ -258,6 +258,7 @@ exports = module.exports = function(app, passport) {
   app.delete('/account/sites/:name', sites.findSite, sites.remove);
   app.get('/account/sites/list.json', sites.list);
   app.get('/account/sites/:name', sites.findSite, sites.getRunTime, sites.examine);
+  app.post('/account/sites/:name', sites.modify, sites.findSite, sites.getRunTime, sites.examine);
   app.get('/account/sites/:name/views', sites.jsonIfXHR, sites.findSite, sites.listView);
   app.get('/account/sites/:name/runtime', sites.findSite, sites.getRunTime, sites.fmtRunTime);
   app.post('/account/sites/:name/runtime', sites.findSite, sites.getRunTime, sites.suggestRunTime, sites.setRunTime, sites.clean_proc_runtime, sites.fmtRunTime);
@@ -295,7 +296,7 @@ exports = module.exports = function(app, passport) {
   app.all('/hosted/site*', passport.authenticate('t1d-strategy',
     { session: true
     // , flashFailure: "Wow"
-    , failureRedirect: '/account'
+    // , failureRedirect: '/account'
     }));
   app.get('/hosted/site/:name/loading', sites.findSite, sites.getRunTime, sites.loading);
   // app.get('/hosted/site/:name/runtime', sites.findSite, sites.getRunTime, sites.fmtRunTime);

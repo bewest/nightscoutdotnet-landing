@@ -493,6 +493,28 @@ exports.create = function(req, res, next) {
 
 };
 
+exports.modify = function(req, res, next) {
+  if (req.body.seen_at != 'dismiss') {
+    return next( );
+  }
+  if (req.body.seen_at == 'dismiss') {
+    var name = req.params.name;
+    var account = { id: req.user.roles.account._id };
+    var fieldsToSet = {
+      tour_given_at: new Date( )
+    };
+    var q = {
+      name: name
+    , account: account
+    };
+    req.app.db.models.Site.findOneAndUpdate(q, fieldsToSet, { }, function (err, site) {
+      console.log("success", err, site);
+      next(err);
+    });
+    return;
+  }
+}
+
 exports.loading = function loading_page (req, res, next) {
     var bases = get_bases(req);
     var sites = req.user.roles.account.sites.map(sitePrefixes(bases));;

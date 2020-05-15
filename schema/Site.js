@@ -12,6 +12,7 @@ exports = module.exports = function(app, mongoose) {
     api_secret: { type: String, default: '' },
     internal: { type: Boolean, default: true },
     created_at: { type: Date, default: Date.now },
+    tour_given_at: { type: Date, default: null },
     uploader_prefix: { type: String, default: '' },
     account: {
       id: { type: mongoose.Schema.Types.ObjectId, ref: 'Account' },

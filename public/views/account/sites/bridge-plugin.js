@@ -33,6 +33,7 @@ $(document).ready(function ( ) {
     $.post(url, data, function (body, status, xhr) {
       console.log('saved', url, data, arguments);
       // form.trigger('data', [body.attempt.settings]);
+      form.trigger('init');
     });
     return false;
   }

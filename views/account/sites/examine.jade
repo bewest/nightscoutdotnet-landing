@@ -33,6 +33,30 @@ block feet
 
 block body
   div.row
+    div.col-xs-2
+    div.col-xs-8(data-offset-top="100", style='z-Index: 1000;')
+      br.clearfix
+  //- div.row
+    div.col-xs-2
+    div.col-xs-8(data-offset-top="100", style='z-Index: 1000;')
+      div.alerts#alertTarget(style='margin-top=2em;')
+      div.alerts
+        div.alert.alert-success.alert-dismissable.fade.in
+          button.close(type='button', data-dismiss='alert') &times;
+          span.error Welcome aboard.&nbsp;
+          a.btn.btn-primary(data-toggle='modal', data-target='#OnboardingWizard')
+            span Get started with G6
+        div.alert.alert-info.alert-dismissable.fade.in
+          button.close(type='button', data-dismiss='alert') &times;
+          span.error Some error
+        div.alert.alert-danger.alert-dismissable.fade.in
+          button.close(type='button', data-dismiss='alert') &times;
+          span.error Some error
+            span.tour
+              a.btn.btn-primary(data-toggle='popover', data-content='hahaha', data-container='#IngressLink')
+                span test
+              a.btn.btn-primary(data-toggle='modal', data-target='#OnboardingWizard')
+                span Get started with G6
     br
     //- div.col-sm-12
       div.page-header
@@ -40,7 +64,7 @@ block body
 
   // div.row#Inspector(data-ajax-target='./#{name}/runtime')
   div.row#Inspector(data-ajax-target='')
-    div.col-xs-3
+    div.col-xs-3.toolbar-pane
 
       div.tabbable.tabs-left
         ul.nav.nav-pills.nav-stacked(role="tablist")
@@ -53,9 +77,12 @@ block body
               i.fa.fa-users
               = ' Social'
           li(role="presentation")
-            a(role="tab", data-toggle="tab", href="#DataIngress")
+            a#IngressLink(role="tab", data-toggle="tab", href="#DataIngress")
               i.fa.fa-upload
-              = ' Dexcom G6'
+              = ' Dexcom G6 '
+              //- span.badge.badge-info
+                | !
+
           li(role="presentation")
             a(role="tab", data-toggle="tab", href="#Authorization")
               i.fa.fa-key
@@ -174,6 +201,8 @@ block body
                         | basal
                       option
                         | pushover
+                      option
+                        | bridge
                       option
                         | maker
 
@@ -418,8 +447,13 @@ block body
                   input.nochanges.dexcom.password.form-control(type='password', name='dexcom_account_password')
                   span.help-block
                 div.form-actions
-                  button.btn.btn-primary.btn-login(type='submit') Save connection
+                  button.btn.btn-primary(type='submit') Save connection
                   |&nbsp;
+                  label(type='clear')
+                    input.nochanges(type="checkbox", name="remove_credentials", value="bridge")
+                    &nbsp;
+                    i.fa.fa-trash-o&nbsp;
+                    | Clear
 
           div.tab-pane#Authorization(role="tabpanel")
             .container
@@ -531,6 +565,34 @@ block body
                   span.badge.t.name Name
                   h4.list-group-item-heading
                     span.t.pebble-text Link
+          div.document_template_cruft
+
+            .modal.fade#OnboardingWizard(tabindex='-1', role='dialog')
+              .modal-dialog(role="document")
+                .modal-content.panel
+                  .modal-header
+                    h4
+                      i.fa.fa-refresh
+                      = ' Welcome'
+                    button.close(data-dismiss="modal")
+                      i.fa.fa-close
+                  .modal-body
+                    div.alert.panel-success.alert-dismissable.fade.in
+                      // button.close(type='button', data-dismiss='alert') &times;
+                      :markdown
+                        Thanks, and welcome to T1Pal!  We recommend starting by
+                        importing data from Dexcom G6 into Nightscout.
+
+                      form(data-action='/account/sites/#{site.name}')
+                        .input-group
+                          div.input-group-btn
+                            a.btn.wizard-submit.btn-success(href="#DataIngress") Import Dexcom G6
+                            button.btn.wizard-submit.btn-info(data-dismiss="modal", type="close") Something else
+                            label.btn.btn-secondary
+                              .not-input-group-addon
+                                input.dismiss_seen(type="checkbox", name="seen_at", value="dismiss")
+                                span
+                                  span Don't show again.
 
 
 

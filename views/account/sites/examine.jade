@@ -29,15 +29,42 @@ block feet
   //- script(src='/vendor/bootstrap-toggle/js/bootstrap-toggle.min.js')
   script(src='/vendor/bootstrap-switch/js/bootstrap-switch.min.js')
   script(src='/views/account/sites/index.js?#{cacheBreaker}')
+  script(src='/views/account/sites/bridge-plugin.js?#{cacheBreaker}')
 
 block body
   div.row
-    div.col-sm-12
+    div.col-xs-2
+    div.col-xs-8(data-offset-top="100", style='z-Index: 1000;')
+      br.clearfix
+  //- div.row
+    div.col-xs-2
+    div.col-xs-8(data-offset-top="100", style='z-Index: 1000;')
+      div.alerts#alertTarget(style='margin-top=2em;')
+      div.alerts
+        div.alert.alert-success.alert-dismissable.fade.in
+          button.close(type='button', data-dismiss='alert') &times;
+          span.error Welcome aboard.&nbsp;
+          a.btn.btn-primary(data-toggle='modal', data-target='#OnboardingWizard')
+            span Get started with G6
+        div.alert.alert-info.alert-dismissable.fade.in
+          button.close(type='button', data-dismiss='alert') &times;
+          span.error Some error
+        div.alert.alert-danger.alert-dismissable.fade.in
+          button.close(type='button', data-dismiss='alert') &times;
+          span.error Some error
+            span.tour
+              a.btn.btn-primary(data-toggle='popover', data-content='hahaha', data-container='#IngressLink')
+                span test
+              a.btn.btn-primary(data-toggle='modal', data-target='#OnboardingWizard')
+                span Get started with G6
+    br
+    //- div.col-sm-12
       div.page-header
         h1 #{name}
 
+  // div.row#Inspector(data-ajax-target='./#{name}/runtime')
   div.row#Inspector(data-ajax-target='')
-    div.col-xs-3
+    div.col-xs-3.toolbar-pane
 
       div.tabbable.tabs-left
         ul.nav.nav-pills.nav-stacked(role="tablist")
@@ -49,7 +76,18 @@ block body
             a(role="tab", data-toggle="tab", href="#Views")
               i.fa.fa-users
               = ' Social'
-          //- li(role="presentation")
+          li(role="presentation")
+            a#IngressLink(role="tab", data-toggle="tab", href="#DataIngress")
+              i.fa.fa-upload
+              = ' Dexcom G6 '
+              //- span.badge.badge-info
+                | !
+
+          li(role="presentation")
+            a(role="tab", data-toggle="tab", href="#Authorization")
+              i.fa.fa-key
+              = ' Nightscout Status'
+          li(role="presentation")
             a(role="tab", data-toggle="tab", href="#Uploaders")
               i.fa.fa-cloud-upload
               = ' Uploaders'
@@ -59,12 +97,15 @@ block body
               = ' Pebble'
 
     div.col-xs-9
+        //- div.page-header
         .tab-content
 
           div.tab-pane.active#Overview(role="tabpanel", data-ajax-target='./#{name}/runtime')
             h4
-              i.fa.fa-home
+              i.fa.fa-home&nbsp;
+              | #{name}
               = ' Overview'
+
             :markdown
               Quick summary of site status, and some handy links.
             div.panel.panel-default
@@ -78,6 +119,11 @@ block body
               div.panel-body
                 span.v.status
                 img.v.status
+                div
+                  p
+                    tt Api Secret&nbsp;
+                      span.e.env.API_SECRET(readonly=true, disabled=true)
+
                 tt
                   a.mqtt-upload.hidden MQTT
                 tt
@@ -115,10 +161,30 @@ block body
                       | always
                     option(value="noise")
                       | noise
-              //- div.panel-body
+              .panel-heading
+                label.btn.btn-default
+                  = ' Show Basal '
+                  input.enabler.enable_basal.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-onx="mg/dL", data-offx="mmol", value="basal")
+              .panel-body
+                label.btn.btn-default
+                  = ' Basal display '
+                  select.e.env.BASAL_RENDER.chosen-select(data-placeholder="Enable", data-width="51", name="BASAL_RENDER")
+                    option(selected="selected", value="none")
+                      |none
+                    option( value="default")
+                      | default
+                    option(value="icicle")
+                      | icicle
+              .panel-heading
+                h5.panel-title
+                  | Enabled Plugins&nbsp;
+              div.panel-body
+                div
+                  tt.e.env.ENABLE(readonly='readonly')
+                div
                   label.btn.btn-default
                     = ' Enable '
-                    select.chosen-select(multiple="multiple", data-placeholder="Enable" )
+                    select.e.env.ENABLE.chosen-select(name='ENABLE', multiple="multiple", data-placeholder="Enable" )
                       option
                         | careportal
                       option
@@ -138,8 +204,6 @@ block body
                       option(selected="selected")
                         | upbat
                       option(selected="selected")
-                        | upbat
-                      option(selected="selected")
                         | ar2
                       option
                         | simplealarms
@@ -151,6 +215,8 @@ block body
                         | basal
                       option
                         | pushover
+                      option
+                        | bridge
                       option
                         | maker
 
@@ -237,18 +303,18 @@ block body
               .panel-heading
                   = ' Time ago  '
               .panel-body
-                .row
-                  .input-group
-                    p.input-group-addon
-                      = ' Warn when time ago exceeds '
-                    input.form-control.e.env.ALARM_TIMEAGO_WARN_MINS(type="number", name="ALARM_TIMEAGO_WARN_MINS")
+                  .input-group.col-xs-6.col-md-3
+                    = ' When last reading is more than'
+                  .input-group.col-xs-6.col-md-3
+                    input.form-control.e.env.ALARM_TIMEAGO_WARN_MINS(type="number", width=3, name="ALARM_TIMEAGO_WARN_MINS")
                     span.input-group-addon
-                      tt minutes
+                      tt minutes old
                     span.input-group-addon
-                      input.binary-data-on-off.toggle-check.e.env.ALARM_TIMEAGO_WARN(type="checkbox", checked="checked", data-size="mini", data-toggle="toggle", data-on="alarm", data-off="do nothing", name="ALARM_TIMEAGO_WARN")
-                  .input-group
-                    p.input-group-addon
-                      = ' Urgent alarm when time ago exceeds '
+                      input.binary-data-on-off.toggle-check.e.env.ALARM_TIMEAGO_WARN(type="checkbox", checked="checked", data-size="mini", data-toggle="toggle", data-on="warn", data-off="do nothing", name="ALARM_TIMEAGO_WARN")
+                  div.clearfix
+                  .input-group.col-xs-6.col-md-3
+                    = ' Urgent alarm when time ago exceeds '
+                  .input-group.col-xs-6.col-md-3
                     input.form-control.e.env.ALARM_TIMEAGO_URGENT_MINS(type="number", name="ALARM_TIMEAGO_URGENT_MINS")
                     span.input-group-addon
                       tt minutes
@@ -262,108 +328,108 @@ block body
                   = ' Custom thresholds  '
                   input.toggle-check.enabler.enable_simplealarms.e.env.ENABLED_SIMPLEALARMS(type="checkbox", checked="checked", data-size="mini", data-toggle="toggle", data-on="alarm", data-off="display", value="simplealarms")
 
-              table
-                tr
-                  td
-                    label.btn.btn-default.form-control
-                      = ' High BG '
-                  td.input-group
-                    input.e.env.BG_HIGH.form-control(type="number", size="100", maxlength="3", name="BG_HIGH")
-                    span.input-group-addon
-                      = ' mg/dL'
-                    //- span.input-group-addon
-                      input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="Urgent alarm", data-off="Display")
+              .panel-body
+                table
+                  tr
+                    td
+                      label.btn.btn-default.form-control
+                        = ' High BG '
+                    td.input-group
+                      input.e.env.BG_HIGH.form-control(type="number", size="100", maxlength="3", name="BG_HIGH")
+                      span.input-group-addon
+                        = ' mg/dL'
+                      //- span.input-group-addon
+                        input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="Urgent alarm", data-off="Display")
 
-                tr
-                  td
-                    label.btn.btn-default.form-control
-                      = ' Target top '
-                  td.input-group
-                    input.e.env.BG_TARGET_TOP.form-control(type="number", size="100", maxlength="3", name="BG_TARGET_TOP")
-                    span.input-group-addon
-                      = ' mg/dL'
-                    //- span.input-group-addon
-                      input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="Urgent alarm", data-off="Display")
+                  tr
+                    td
+                      label.btn.btn-default.form-control
+                        = ' Target top '
+                    td.input-group
+                      input.e.env.BG_TARGET_TOP.form-control(type="number", size="100", maxlength="3", name="BG_TARGET_TOP")
+                      span.input-group-addon
+                        = ' mg/dL'
+                      //- span.input-group-addon
+                        input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="Urgent alarm", data-off="Display")
 
-                tr
-                  td
-                    label.btn.btn-default.form-control
-                      = ' Target bottom '
-                  td.input-group
-                    input.e.env.BG_TARGET_BOTTOM.form-control(type="number", size="100", maxlength="3", name="BG_TARGET_BOTTOM")
-                    span.input-group-addon
-                      = ' mg/dL'
-                    //- span.input-group-addon
-                      input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="Urgent alarm", data-off="Display")
+                  tr
+                    td
+                      label.btn.btn-default.form-control
+                        = ' Target bottom '
+                    td.input-group
+                      input.e.env.BG_TARGET_BOTTOM.form-control(type="number", size="100", maxlength="3", name="BG_TARGET_BOTTOM")
+                      span.input-group-addon
+                        = ' mg/dL'
+                      //- span.input-group-addon
+                        input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="Urgent alarm", data-off="Display")
 
-                tr
-                  td
-                    label.btn.btn-default.btn.form-control
-                      = ' Low BG '
-                  td.input-group
-                    input.e.env.BG_LOW.form-control(type="number", size="100", maxlength="3", name="BG_LOW")
-                    span.input-group-addon
-                      = ' mg/dL'
-                    //- span.input-group-addon
-                      input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="Urgent alarm", data-off="Display")
+                  tr
+                    td
+                      label.btn.btn-default.btn.form-control
+                        = ' Low BG '
+                    td.input-group
+                      input.e.env.BG_LOW.form-control(type="number", size="100", maxlength="3", name="BG_LOW")
+                      span.input-group-addon
+                        = ' mg/dL'
+                      //- span.input-group-addon
+                        input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="Urgent alarm", data-off="Display")
 
 
 
-              //- .panel-heading
-                label.btn.btn-default
-                  = ' Cannula age '
-                  input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="On", data-off="Off")
-              //- ul.list-group
-                li.list-group-item
+                //- .panel-heading
                   label.btn.btn-default
-                    = ' Notifications '
+                    = ' Cannula age '
                     input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="On", data-off="Off")
-                  :markdown
-                    Notify when the time in *hours* since the last site change
-                    indicates upcoming, change, and overdue events.
-                li.list-group-item
-                  label.btn.btn-default
-                    = ' Notify '
-                    input.e.env(type="number")
-                    tt
-                      = ' hours '
-                  :markdown
-                    since last site change that a cannula change is coming
-                    soon.
-                li.list-group-item
-                  label.btn.btn-default
-                    = ' Warn '
-                    input.e.env(type="number")
-                    tt
-                      = ' hours '
-                  :markdown
-                    since last site change that cannula is due to be changed.'
-                li.list-group-item
-                  label.btn.btn-default
-                    = ' Alarm '
-                    input.e.env(type="number")
-                    tt
-                      = ' hours '
-                  :markdown
-                    since last site change that cannula is overdue for
-                    change.'
+                //- ul.list-group
+                  li.list-group-item
+                    label.btn.btn-default
+                      = ' Notifications '
+                      input.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-on="On", data-off="Off")
+                    :markdown
+                      Notify when the time in *hours* since the last site change
+                      indicates upcoming, change, and overdue events.
+                  li.list-group-item
+                    label.btn.btn-default
+                      = ' Notify '
+                      input.e.env(type="number")
+                      tt
+                        = ' hours '
+                    :markdown
+                      since last site change that a cannula change is coming
+                      soon.
+                  li.list-group-item
+                    label.btn.btn-default
+                      = ' Warn '
+                      input.e.env(type="number")
+                      tt
+                        = ' hours '
+                    :markdown
+                      since last site change that cannula is due to be changed.'
+                  li.list-group-item
+                    label.btn.btn-default
+                      = ' Alarm '
+                      input.e.env(type="number")
+                      tt
+                        = ' hours '
+                    :markdown
+                      since last site change that cannula is overdue for
+                      change.'
 
-              //- table.table
-                //- tr
-                  th(colspan="1")
-                    = ''
-                  th
-                    = ''
-                  th
-                    = ''
-                tr
-                  td(colspan="1")
-                  td
-                  td
+                //- table.table
+                  //- tr
+                    th(colspan="1")
+                      = ''
+                    th
+                      = ''
+                    th
+                      = ''
+                  tr
+                    td(colspan="1")
+                    td
+                    td
 
-                tr
-                  td(colspan="3")
-
+                  tr
+                    td(colspan="3")
 
             div.panel.panel-warning
               div.panel-body
@@ -372,6 +438,43 @@ block body
                     i.fa.fa-trash-o
 
 
+          div.tab-pane#DataIngress(role="tabpanel")
+            h4
+              i.fa.fa-upload
+              = ' Connections'
+            :markdown
+              Manage data collection and storage.
+              Sign into Dexcom to fetch glucose data.
+            form#DexcomLogin(data-action='/account/sites/#{site.name}/dexcom/connect')
+              p Nightscout uses this information to get cgm data.
+              .col-md-4.panel
+                div.form-group.bridge-enablers
+                  label.btn.btn-default
+                    = ' Enable Dexcom '
+                    input.enabler.enable_bridge.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-onx="enable", data-offx="verify", value="bridge")
+                div.form-group
+                  label Dexcom Username:
+                  input.nochanges.dexcom.username.form-control(type='text', name='dexcom_account_name')
+                  span.help-block 
+                div.form-group
+                  label Dexcom Password:
+                  input.nochanges.dexcom.password.form-control(type='password', name='dexcom_account_password')
+                  span.help-block
+                div.form-actions
+                  button.btn.btn-primary(type='submit') Save connection
+                  |&nbsp;
+                  label(type='clear')
+                    input.nochanges(type="checkbox", name="remove_credentials", value="bridge")
+                    &nbsp;
+                    i.fa.fa-trash-o&nbsp;
+                    | Clear
+
+          div.tab-pane#Authorization(role="tabpanel")
+            .container
+              .row
+                .col-md-9
+                  div.embed-responsive.embed-responsive-4by3
+                    iframe.embed-responsive-item(width='100%', height='400', src="//#{site.domain}/embedded/")
           div.tab-pane#Views(role="tabpanel")
 
             h4
@@ -409,7 +512,7 @@ block body
               tbody.tail.add-new-view
                 tr
                   td(colspan="5")
-                    form(method="POST", action="/account/sites/#{site.name}/views")
+                    form.ajax(method="POST", data-target="#views-list", action="/account/sites/#{site.name}/views")
                       div.input-group
                         input.form-control(type="text", name="viewName", placeholder="Name", aria-describedby="new-view-name")
                         span.input-group-addon#new-view-name #{site.guest}
@@ -421,7 +524,7 @@ block body
               a.v.mqtt-upload.hidden
               a.v.http-upload.hidden
               .xxmodal-dialog(role="document")
-                .xxxxmodal-content
+                .xxxxmodal-content.panel
                   .xxxmodal-header
                     h4 
                       i.fa.fa-cloud-upload
@@ -431,18 +534,37 @@ block body
                   .modal-body
                     p Scan this image
                     ul.nav.nav-tabs(role="tablist")
-                      li.active(role="presentation")
+                      //- li
                         a(href="#mqtt-upload-qr", role="tab", data-toggle="tab")
                           | MQTT
-                      li
+                      li.active(role="presentation")
                         a(href="#http-upload-qr", data-toggle="tab")
                           | HTTP
+                      li(role="presentation")
+                        a(href="#http-xdrip-upload-qr", data-toggle="tab")
+                          | XDrip 
                     .tab-content
-                      div.active.tab-pane#mqtt-upload-qr(role="tabpanel")
+                      p
+                        tt Api Secret&nbsp;
+                          span.v.api_secret(readonly=true, disabled=true) #{site.apisecret}
+                      .empty-uploaders
+                        form.ajax(method="POST", data-target="#views-list", action="/account/sites/#{site.name}/views")
+                         .well
+                          :markdown
+                            No uploaders created yet.  Create an uploader.
+                          div.input-group
+                            input.nochanges.form-control#uploader_name(type="hidden", name="viewName", placeholder="upload-0", aria-describedby="new-view-name", readonly="readonly")
+                            div.input-group-btn
+                              button.btn.btn-success(type="submit") Create uploader
+                      div.tab-pane#mqtt-upload-qr(role="tabpanel")
                         div.code
                         p
                           tt.uri
-                      div.tab-pane#http-upload-qr(role="tabpanel")
+                      div.active.in.tab-pane#http-upload-qr(role="tabpanel")
+                        div.code
+                        p
+                          tt.uri
+                      div.tab-pane#http-xdrip-upload-qr(role="tabpanel")
                         div.code
                         p
                           tt.uri
@@ -457,6 +579,34 @@ block body
                   span.badge.t.name Name
                   h4.list-group-item-heading
                     span.t.pebble-text Link
+          div.document_template_cruft
+
+            .modal.fade#OnboardingWizard(tabindex='-1', role='dialog')
+              .modal-dialog(role="document")
+                .modal-content.panel
+                  .modal-header
+                    h4
+                      i.fa.fa-refresh
+                      = ' Welcome'
+                    button.close(data-dismiss="modal")
+                      i.fa.fa-close
+                  .modal-body
+                    div.alert.panel-success.alert-dismissable.fade.in
+                      // button.close(type='button', data-dismiss='alert') &times;
+                      :markdown
+                        Thanks, and welcome to T1Pal!  We recommend starting by
+                        importing data from Dexcom G6 into Nightscout.
+
+                      form(data-action='/account/sites/#{site.name}')
+                        .input-group
+                          div.input-group-btn
+                            a.btn.wizard-submit.btn-success(href="#DataIngress") Import Dexcom G6
+                            button.btn.wizard-submit.btn-info(data-dismiss="modal", type="close") Something else
+                            label.btn.btn-secondary
+                              .not-input-group-addon
+                                input.dismiss_seen(type="checkbox", name="seen_at", value="dismiss")
+                                span
+                                  span Don't show again.
 
 
 

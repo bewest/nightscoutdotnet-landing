@@ -86,11 +86,18 @@ exports.deleteView = function (req, res, next) {
           , internal_name: req.hosted_site.internal_name
     }
   };
-  req.app.db.models.View.remove(q, function (err, site) {
+
+  req.app.db.models.View.deleteOne(q, function (err, site) {
     if (err) {
       return next(err);
     }
-    res.status(204).send("").end( );
+    var api = req.app.config.proxy.backplane;
+    var url = api + '/views/inspect/' + req.site.key + '/' + q.name;
+    request.del({ url: url, json: true }, function done (err, result, body) {
+      if (err) { return next(err); }
+      res.status(204).json(q.name).end( );
+      next( );
+    });
   });
 };
 
@@ -130,12 +137,15 @@ exports.findSite = function (req, res, next) {
 var blacklistedENV = [null, 'HOSTEDPORTS', 'MONGO_COLLECTION', 'MONGO_DEVICESTATUS_COLLECTION', 'MONGO_PROFILE_COLLECTION', 'MONGO_SETTINGS_COLLECTION', 'MONGO_TREATMENTS_COLLECTION', 'PATH', 'WEB_NAME', 'WORKER_DIR', 'WORKER_ENV', 'base', 'envfile', 'mongo', 'internal_name', 'PORT'  ];
 exports.getRunTime = function (req, res, next) {
   var account_id = req.user.roles.account._id;
-  var api = req.app.config.proxy.api;
-  var url = api + '/environs/' + req.site.internal_name;
+  var key = req.site.key;
+  var api = req.app.config.proxy.backplane;
+  var url = api + '/resource/' + key + '/compute';
+  // var api = req.app.config.proxy.api;
+  // var url = api + '/environs/' + req.site.internal_name;
   // var api = req.app.config.proxy.provision;
   // var url = api + '/accounts/' + account_id + '/sites/' + req.site.internal_name;
   request.get({ url: url, json: true }, function done (err, result, body) {
-    if (err) { return next(err); }
+    if (err || result.statusCode > 299) { return next(err); }
     var safe = { };
     var env = body.custom_env;
     for (var f in env) {
@@ -268,7 +278,9 @@ exports.examine = function (req, res, next) {
     if (err || sites == null) {
       return next(err);
     }
-    var site = [sites].map(sitePrefixes(get_bases(req))).pop( );
+    var site = sites;
+    site.api_secret = req.site.proc.custom_env.API_SECRET;
+    site = [site].map(sitePrefixes(get_bases(req))).pop( );
     var data = { user: req.user, name: req.params.name, site: site, bases: bases };
     res.format({
       'json': function ( ) {
@@ -330,18 +342,22 @@ exports.remove = function(req, res, next) {
   var name = req.params.name;
   var account_id = req.user.roles.account._id;
   // var site = req.sites.filter(function (f) { return f.name == name && req.user.roles.account._id == f.account.id; });
+  /*
   var site = req.sites.filter(function (f) { 
     return (f.name == name && f.account.id.toString( ) == account_id.toString( ));
   }).pop( );
+  */
+  var site = req.site;
   console.log("REMOVE XX", site);
   if (site.name != name) {
     throw "bad";
   }
 
-  // var api = req.app.config.proxy.api;
+  // var api = req.app.config.proxy.provision;
   var account_id = req.user.roles.account._id;
-  var api = req.app.config.proxy.provision;
-  var delete_url = api + '/accounts/' + account_id + '/sites/' + site.internal_name;
+  var api = req.app.config.proxy.backplane;
+  // var delete_url = api + '/accounts/' + account_id + '/sites/' + site.internal_name;
+  var delete_url = api + '/sites/' + site.key;
   // var url = api + '/accounts/' + account_id + '/sites/' + req.site.internal_name;
 
   var q = {
@@ -356,13 +372,12 @@ exports.remove = function(req, res, next) {
     console.log('removed from backends', result.statusCode, body);
     // req.user.roles.account.sites.pull(q);
     console.log('begin sites for account', req.user.roles.account.sites.length);
-    req.user.roles.account.sites = req.sites.filter(function (c) {
-      console.log('considering removing', c.name, name);
+    req.user.roles.account.sites = req.user.roles.account.sites.filter(function (c) {
       return c.name.toString( ) != name;
     });
     req.user.roles.account.update(req.user.roles.account, function (err, saved) {
       console.log('saved account', err, saved);
-      req.app.db.models.Site.remove(q, function (err, site) {
+      req.app.db.models.Site.deleteOne(q, function (err, site) {
           // req.app.db.models.Site.findOneAndRemove(q, function (err, site) { });
           console.log('removed from db', 'query', q, 'err', err, 'site??', site);
           /*
@@ -428,6 +443,10 @@ exports.create = function(req, res, next) {
     if (err) {
       return next(err);
     }
+    if (!body.storage || !body.compute) {
+      res.redirect('/account/sites/');
+      return next("missing items");
+    }
 
     var shasum = crypto.createHash('sha1');
     // shasum.update(body.API_SECRET);
@@ -473,3 +492,41 @@ exports.create = function(req, res, next) {
   });
 
 };
+
+exports.modify = function(req, res, next) {
+  if (req.body.seen_at != 'dismiss') {
+    return next( );
+  }
+  if (req.body.seen_at == 'dismiss') {
+    var name = req.params.name;
+    var account = { id: req.user.roles.account._id };
+    var fieldsToSet = {
+      tour_given_at: new Date( )
+    };
+    var q = {
+      name: name
+    , account: account
+    };
+    req.app.db.models.Site.findOneAndUpdate(q, fieldsToSet, { }, function (err, site) {
+      console.log("success", err, site);
+      next(err);
+    });
+    return;
+  }
+}
+
+exports.loading = function loading_page (req, res, next) {
+    var bases = get_bases(req);
+    var sites = req.user.roles.account.sites.map(sitePrefixes(bases));;
+    var shasum = crypto.createHash('sha1');
+    shasum.update(req.site.proc.custom_env.API_SECRET);
+    var apisecrethash = shasum.digest('hex');
+    req.site.apisecrethash = apisecrethash;
+    res.locals.sites = sites;
+    res.locals.site = req.site;
+    res.locals.bases = bases;
+    res.locals.params = req.params;
+    res.locals.session = req.t1dpal;
+    res.render('account/sites/loading');
+};
+

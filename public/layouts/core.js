@@ -26,5 +26,7 @@ var app; //the main declaration
         top: e.pageY
       });
     });
+
+    $("[data-toggle='popover'], [rel='popover']").popover( );
   });
 }());

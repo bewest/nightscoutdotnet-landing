@@ -162,6 +162,20 @@ block body
                     option(value="noise")
                       | noise
               .panel-heading
+                label.btn.btn-default
+                  = ' Show Basal '
+                  input.enabler.enable_basal.toggle-check(type="checkbox", data-size="mini", data-toggle="toggle", data-onx="mg/dL", data-offx="mmol", value="basal")
+              .panel-body
+                label.btn.btn-default
+                  = ' Basal display '
+                  select.e.env.BASAL_RENDER.chosen-select(data-placeholder="Enable", data-width="51", name="BASAL_RENDER")
+                    option(selected="selected", value="none")
+                      |none
+                    option( value="default")
+                      | default
+                    option(value="icicle")
+                      | icicle
+              .panel-heading
                 h5.panel-title
                   | Enabled Plugins&nbsp;
               div.panel-body

@@ -314,7 +314,11 @@ exports.signupGoogle = function(req, res, next) {
       }
       if (!user) {
         req.session.socialProfile = info.profile;
-        res.render('signup/social', { email: info.profile.emails && info.profile.emails[0].value || '' });
+        console.log("FROM GOOGLE", info);
+        var email = info.profile.emails && info.profile.emails[0].value || '';
+        var username = email.split('@')[0] || req.session.socialProfile.id;
+        var displayName = req.session.socialProfile.displayName;
+        res.render('signup/social', { email: email, info: info, username: username, displayName: displayName });
       }
       else {
         res.render('signup/index', {
@@ -366,6 +370,21 @@ exports.signupSocial = function(req, res){
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function() {
+    if (!req.body.privacy_signed_by) {
+      // workflow.outcome.errfor.privacy_signed_at = 'required';
+      workflow.outcome.errfor.privacy_signed_by = 'required';
+    }
+    if (!req.body.tos_signed_by) {
+      // workflow.outcome.errfor.tos_signed_at = 'required';
+      workflow.outcome.errfor.tos_signed_by = 'required';
+    }
+    if (!req.body.username) {
+      workflow.outcome.errfor.username = 'required';
+    }
+    else if (!/^[a-zA-Z0-9\-\_]+$/.test(req.body.username)) {
+      workflow.outcome.errfor.username = 'only use letters, numbers, \'-\', \'_\'';
+    }
+
     if (!req.body.email) {
       workflow.outcome.errfor.email = 'required';
     }
@@ -422,6 +441,14 @@ exports.signupSocial = function(req, res){
       isActive: 'yes',
       username: workflow.username,
       email: req.body.email.toLowerCase(),
+      accepted_privacy: {
+        signed_at: req.body.privacy_signed_at || (new Date).toISOString( ),
+        signed_by: req.body.privacy_signed_by
+      },
+      accepted_tos: {
+        signed_at: req.body.tos_signed_at || (new Date).toISOString( ),
+        signed_by: req.body.tos_signed_by
+      },
       search: [
         workflow.username,
         req.body.email

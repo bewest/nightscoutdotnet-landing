@@ -8,10 +8,13 @@ block feet
 
 block body
   div.row
-    div.col-sm-6
-      div.page-header
-        h1 Complete Sign Up
-      div#signup
+    div.col-xs-2
+    div.col-sm-8
+      div.col-xs-8.col-sm-7.col-md-7.col-lg-6
+        div.page-header
+          h1 Complete Sign Up
+        div#signup
+      .clearfix
 
   script(type='text/template', id='tmpl-signup')
     form
@@ -21,11 +24,32 @@ block body
           button.close(type='button', data-dismiss='alert') &times;
           |<%- err %>
         |<% }); %>
+      h3 Username and email
+      div.form-group(class!='<%- errfor.username ? "has-error" : "" %>')
+        label Pick a Username:
+        input.form-control(type='text', name='username', value!='<%= username %>')
+        span.help-block <%- errfor.username %>
       div.form-group(class!='<%- errfor.email ? "has-error" : "" %>')
         label Enter Your Email:
         input.form-control(type='text', name='email', value!='<%= email %>')
         span.help-block <%- errfor.email %>
+      hr
+      div.form-group(class!='<%- errfor.privacy_signed_by ? "has-error" : "" %>')
+        .form-control
+          label
+            input(type='checkbox', name='privacy_signed_by', value!='<%= displayName %>')
+            | &nbsp;Accept&nbsp;
+          a(href="/legal/privacy_policy", target="_blank") Privacy policy
+      div.form-group(class!='<%- errfor.tos_signed_at ? "has-error" : "" %>')
+        .form-control
+          label
+            input(type='checkbox', name='tos_signed_by', value!='<%= displayName %>')
+            | &nbsp;Accept&nbsp;
+          a(href="/legal/terms", target="_blank") View Terms of Service
+      br.clearfix
       div.form-group
         button.btn.btn-primary.btn-signup(type='button') Create My Account
 
   script(type='text/template', id='data-email') !{email}
+  script(type='text/template', id='data-username') !{username}
+  script(type='text/template', id='data-displayName') !{displayName}

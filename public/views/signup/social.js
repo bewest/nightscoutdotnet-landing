@@ -10,6 +10,12 @@
     defaults: {
       errors: [],
       errfor: {},
+      tos_signed_by: '',
+      tos_signed_at: '',
+      privacy_signed_by: '',
+      privacy_signed_at: '',
+      username: '',
+      displayName: '',
       email: ''
     }
   });
@@ -25,6 +31,8 @@
     initialize: function() {
       this.model = new app.Signup();
       this.model.set('email', $('#data-email').text());
+      this.model.set('username', $('#data-username').text());
+      this.model.set('displayName', $('#data-displayName').text());
       this.listenTo(this.model, 'sync', this.render);
       this.render();
     },
@@ -44,6 +52,11 @@
       this.$el.find('.btn-signup').attr('disabled', true);
 
       this.model.save({
+        tos_signed_at: this.$el.find('[name="tos_signed_at"]').val() || (new Date).toISOString( ),
+        tos_signed_by: this.$el.find('[name="tos_signed_by"]:checked').val(),
+        privacy_signed_at: this.$el.find('[name="privacy_signed_at"]').val() || (new Date).toISOString( ),
+        privacy_signed_by: this.$el.find('[name="privacy_signed_by"]:checked').val(),
+        username: this.$el.find('[name="username"]').val(),
         email: this.$el.find('[name="email"]').val()
       },{
         success: function(model, response) {

@@ -13,6 +13,14 @@ exports = module.exports = function(app, mongoose) {
     timeCreated: { type: Date, default: Date.now },
     resetPasswordToken: String,
     resetPasswordExpires: Date,
+    accepted_privacy: {
+      signed_at: { type: Date, default: null },
+      signed_by: { type: String, default: null }
+    },
+    accepted_tos: {
+      signed_at: { type: Date, default: null },
+      signed_by: { type: String, default: null }
+    },
     twitter: {},
     github: {},
     facebook: {},
